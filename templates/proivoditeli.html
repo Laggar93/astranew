@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% block seo %}
+    <title>{{ manufacturer_page.title }}</title>
+    <meta name="description" content="{{ manufacturer_page.description }}">
+    <meta name="keywords" content="{{ manufacturer_page.keywords }}">
+    <meta property="og:title" content="{{ manufacturer_page.title }}">
+    <meta property="og:description" content="{{ manufacturer_page.description }}">
+    <meta property="og:keywords" content="{{ manufacturer_page.keywords }}">
+    <meta property="og:url" content="{{ site_name }}{{ request.path }}">
+{% endblock %}
+{% load static %}
+{% block content %}
+    <!-- breadcrumbs -->
+    <section class="section-block section-block--oborudovanie" id="section-page">
+        <div class="container">
+            <ul class="breadcrumbs">
+                <li class="breadcrumbs-item">
+                    <a href="{% url 'main_page' %}" class="breadcrumbs-item__link">Главная</a>
+                </li>
+                <li class="breadcrumbs-item">
+                    Производители
+                </li>
+            </ul>
+            <div class="page-content">
+                <h1>Производители</h1>
+                <div class="brands-page">
+                    <div class="brands-page__filter">
+                        <div class="brands-filter">
+                            <a href="javascript:void();" class="brands-filter__reset js-filter-reset">Сбросить</a>
+                            <div class="brands-filter__title js-brands-filter-main">Фильтр
+                                <div class="brands-filter__title-count js-filter-count"></div>
+                            </div>
+                            <div class="brands-filter-block js-filter-block is-opened">
+                                <button class="brands-filter-block__title js-filter-block-btn">Категория</button>
+                                <div class="brands-filter-block__form js-filter-form" style="display: block;">
+                                    {% for i in categories %}
+                                        <label class="field-checkbox">
+                                            <input type="checkbox" class="field-checkbox__input" data-filter="category" value="a-{{ i.id }}"/>
+                                            {{ i.cat_title }}
+                                        </label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="brands-filter-block js-filter-block">
+                                <button class="brands-filter-block__title js-filter-block-btn">Страна</button>
+                                <div class="brands-filter-block__form js-filter-form">
+                                    {% for i in countries %}
+                                        <label class="field-checkbox">
+                                            <input type="checkbox" class="field-checkbox__input" data-filter="country" value="b-{{ i.id }}"/>
+                                            {{ i.title }}
+                                        </label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="brands-page__results">
+                        <div class="results-footer">
+                            <div class="results-footer__count" style="padding-bottom: 16px;">
+                                Найдено производителей: <span>{{ all_manufacturers.count }}</span>
+                            </div>
+                            <!--
+                                <div class="results-footer__pagination">
+                                    <ul class="pagination">
+                                        {% for k in pages_array %}
+                                        <li class="pagination-item">
+                                            <div class="form_radio_btn">
+                                                <input class="update_data" type="radio" name="page" id="radio-{{ k }}" value="{{ k }}" {% if k == page %}checked="checked"
+                            {% endif %}>
+                                                <label for="radio-{{ k }}">{{ k }}</label>
+                                            </div>
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                                -->
+                        </div>
+                        <div class="brands-results-row">
+                            <p class="brands-results-row__not-found">Производители не найдены</p>
+                            {% for i in manufacturers %}
+                                {% with k=forloop.counter %}
+                                    {% if i.image %}
+                                        <div class="brands-results-item"
+                                             data-category="{% for m in i.categories.all %}a-{{ m.id }}{% if not forloop.last %}, {% endif %}{% endfor %}"
+                                             data-country="b-{{ i.country.id }}">
+                                            <a href="{% if i.link %}{{ i.link }}{% else %}javascript:void();{% endif %}" target="_blank"><img src="{{ i.image_png.url }}"
+                                                                                                                                              srcset="{{ i.image_png2x.url }}"
+                                                                                                                                              alt="{{ i.name }}"></a>
+                                        </div>
+                                    {% endif %}
+                                {% endwith %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- section contacts -->
+    {% include 'contacts_part.html' %}
+{% endblock %}
+

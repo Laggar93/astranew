@@ -1,0 +1,25 @@
+{% csrf_token %}
+<div class="brands-filter-block js-filter-block">
+    <button class="brands-filter-block__title js-filter-block-btn">Категория</button>
+    <div class="brands-filter-block__form js-filter-form">
+        {% for i in categories %}
+            <label class="field-checkbox">
+                <input type="checkbox" class="field-checkbox__input update_data" data-filter="category" value="{{ i.id }}" id="category-{{ i.id }}"
+                       name="field_class1"/>
+                {{ i.cat_title }}
+            </label>
+        {% endfor %}
+    </div>
+</div>
+<div class="brands-filter-block js-filter-block">
+    <button class="brands-filter-block__title js-filter-block-btn">Страна</button>
+    <div class="brands-filter-block__form js-filter-form">
+        {% for i in countries %}
+            <label class="field-checkbox">
+                <input type="checkbox" class="field-checkbox__input update_data" data-filter="country" value="{{ i.id }}" id="country-{{ i.id }}"
+                       name="field_class2"/>
+                {{ i.title }}
+            </label>
+        {% endfor %}
+    </div>
+</div>

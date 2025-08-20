@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% block seo %}
+    <title>{{ main_page.title }}</title>
+    <meta name="description" content="{{ main_page.description }}">
+    <meta name="keywords" content="{{ main_page.keywords }}">
+    <meta property="og:title" content="{{ main_page.title }}">
+    <meta property="og:description" content="{{ main_page.description }}">
+    <meta property="og:keywords" content="{{ main_page.keywords }}">
+    <meta property="og:url" content="{{ site_name }}{{ request.path }}">
+{% endblock %}
+{% load static %}
+{% block content %}
+    <!-- hero -->
+    <section class="section-hero" id="section-hero">
+        <video autoplay="" loop="" muted="" class="section-hero__video">
+            <source src="{% static '/assets/video/video.webm' %}" type="video/webm">
+            <source src="{% static '/assets/video/video.mp4' %}" type="video/mp4">
+        </video>
+        <div class="container">
+            <div class="hero">
+                <h1 class="hero__title">
+                    {% autoescape off %}{{ main_page.main_title }}{% endautoescape %}
+                </h1>
+                <div class="swiper hero-features js-hero-features">
+                    <div class="swiper-wrapper">
+                        {% for i in main_page.main_page_items.all %}
+                            <div class="swiper-slide hero-features-item">
+                                <div class="hero-features__item-num">
+                                    {{ forloop.counter }}
+                                </div>
+                                <div class="hero-features__item-text">
+                                    {{ i.title|linebreaksbr }}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="swiper-pagination"></div>
+                </div>
+                <div class="hero-btn">
+                    <button class="js-popup-link hero-btn__btn" data-popup="order">Оставить заявку</button>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- categories -->
+    <section class="section-block" id="section-categories">
+        <div class="container">
+            <h2 class="h2-title">
+                {{ catalog_page.section_title }}
+            </h2>
+            <div class="categories-list">
+                {% for i in categories %}
+                    <div class="{% if i.categories.count > 0 %}category-item{% else %}category-item category-item_empty{% endif %}">
+                        <a href="{% url 'category' i.slug %}" class="category-item__link"></a>
+                        <div class="category-item__img">
+                            <picture>
+                                <source srcset="{{ i.image_webp.url }}, {{ i.image_2x_webp.url }} 2x">
+                                <img src="{{ i.image_jpg.url }}" srcset="{{ i.image_2x_jpg.url }} 2x">
+                            </picture>
+                        </div>
+                        <div class="category-item__title">{{ i.cat_title }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    <!-- section manufactures -->
+    <section class="section-block section-block--gray" id="section-manufactures">
+        <div class="container">
+            <h2 class="h2-title">
+                Производители
+            </h2>
+            <div class="manufactures">
+                <div class="manufactures__nav">
+                    {% for i in man_categories %}
+                        <button class="manufactures__nav-link {% if forloop.first %}is-selected{% endif %} js-tab-link" data-tab="{{ i.id }}">{{ i.title }}</button>
+                    {% endfor %}
+                </div>
+                <div class="manufactures__content">
+                    {% for i in man_categories %}
+                        <div class="manufactures__content-block {% if forloop.first %}is-selected{% endif %} js-tab-content" data-tab="{{ i.id }}">
+                            <div class="manufactures__list">
+                                {% for j in i.main_page_categories.all %}
+                                    <div class="manufactures-item">
+                                        {% if j.image_about %}
+                                            <picture>
+                                                <img src="{{ j.image_about.url }}" alt="{{ j.name }}">
+                                            </picture>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <a class="btn btn-main btn__all" href="/manufacturers">Показать всех</a>
+        </div>
+    </section>
+    <!-- section contacts -->
+    <section class="section-block" id="section-contacts">
+        <div class="container">
+            <h2 class="h2-title">
+                {{ contacts_page.section_title }}
+            </h2>
+            <div class="contacts">
+                <div class="contacts__map">
+                    <div id="map" data-lat="59.925159" data-long="30.383781"></div>
+                </div>
+                <div class="contacts__info">
+                    <p>{{ contacts_page.address|linebreaksbr }}</p>
+                    <p>
+                        <a href="tel:{{ contacts_page.first_phone }}" class="contacts__info-phone">{{ contacts_page.first_phone }}</a>
+                        <a href="tel:{{ contacts_page.second_phone }}" class="contacts__info-phone">{{ contacts_page.second_phone }}</a>
+                    </p>
+                    {% if contacts_page.telegram or contacts_page.whatsapp %}
+                        <div class="contacts__links">
+                            <a href="mailto:{{ contacts_page.email }}">{{ contacts_page.email }}</a>
+                            {% if contacts_page.telegram %}
+                                <a href="https://t.me/{{ contacts_page.telegram }}" class="social-link social-link__tg-dark"></a>
+                            {% endif %}
+                            {% if contacts_page.whatsapp %}
+                                <a href="https://wa.me/{{ contacts_page.whatsapp }}" class="social-link social-link__wa-dark"></a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                    <div class="contacts__btn">
+                        <button class="btn btn-main js-popup-link" data-popup="order">связаться с нами</button>
+                    </div>
+                    <div class="contacts__rekvizit">
+                        <div class="rekvizits-popup js-rekvizits-popup">
+                            <a href="#" class="rekvizits-popup__close js-rekvizits-popup-close"></a>
+                            <div class="rekvizits-popup__title">{{ requisites.title }}</div>
+                            <div class="rekvizits-popup__subtitle">{{ requisites.subtitle|linebreaksbr }}</div>
+                            {% for i in requisites.requisites_items.all %}
+                                <div class="rekvizits-popup__row">
+                                    <div class="rekvizits-popup__row-col-name">{{ i.title }}</div>
+                                    <div class="rekvizits-popup__row-col-value">{{ i.subtitle|linebreaksbr }}</div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <button class="btn btn-link-gray js-rekvizit-btn">Реквизиты компании</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

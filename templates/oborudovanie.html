@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block seo %}
+    <title>{{ current_category.title }}</title>
+    <meta name="description" content="{{ current_category.description }}">
+    <meta name="keywords" content="{{ current_category.keywords }}">
+    <meta property="og:title" content="{{ current_category.title }}">
+    <meta property="og:description" content="{{ current_category.description }}">
+    <meta property="og:keywords" content="{{ current_category.keywords }}">
+    <meta property="og:url" content="{{ site_name }}{{ request.path }}">
+{% endblock %}
+{% load static %}
+{% block content %}
+    <!-- breadcrumbs -->
+    <section class="section-block section-block--oborudovanie" id="section-page">
+        <div class="container">
+            <ul class="breadcrumbs">
+                <li class="breadcrumbs-item">
+                    <a href="{% url 'main_page' %}" class="breadcrumbs-item__link">Главная</a>
+                </li>
+                <li class="breadcrumbs-item">
+                    <a href="{% url 'catalog' %}" class="breadcrumbs-item__link">{{ catalog_page.section_title }}</a>
+                </li>
+                <li class="breadcrumbs-item">
+                    {{ current_category.cat_title }}
+                </li>
+            </ul>
+            <div class="page-content">
+                <h1>{{ current_category.cat_title }}</h1>
+                <div class="equipment-list">
+                    {% for i in current_category.categories.all %}
+                        <div class="{% if i.subcategory_description %}equipment-item{% else %}equipment-item equipment-item_empty{% endif %}">
+                            {% if i.subcategory_description %}
+                                <a href="{% url 'subcategory' i.categories.slug i.slug %}" class="equipment-item__link"></a>
+                            {% endif %}
+                            <div class="equipment-item__icon">
+                                <img src="{{ i.icon.url }}" alt="{{ i.subcategory_title }} Иконка" width="81" height="81">
+                            </div>
+                            <div class="equipment-item__name">
+                                {{ i.subcategory_title }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- section contacts -->
+    {% include 'contacts_part.html' %}
+{% endblock %}

@@ -1,0 +1,24 @@
+@import "mixins/vars";
+@import "fonts";
+@import "mixins";
+@import "normall";
+@import "common/base";
+@import "common/titles";
+@import "common/buttons";
+@import "common/pages";
+@import "common/popup";
+@import "common/forms";
+
+//header
+@import "common/header";
+@import "common/footer";
+
+//blocks
+@import "blocks/breadcrumbs";
+@import "blocks/hero";
+@import "blocks/categories";
+@import "blocks/manufactures";
+@import "blocks/contacts";
+@import "blocks/equipment";
+@import "blocks/product";
+@import "blocks/about";

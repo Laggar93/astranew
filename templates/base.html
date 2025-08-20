@@ -1,0 +1,183 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru-RU">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    {% block seo %}
+    {% endblock %}
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="{% static '/assets/images/og-img.jpg' %}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static '/assets/images/favicon/apple-touch-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static '/assets/images/favicon/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static '/assets/images/favicon/favicon-16x16.png' %}">
+    <link rel="manifest" href="{% static '/assets/images/favicon/site.webmanifest' %}">
+    <link rel="mask-icon" href="{% static '/assets/images/favicon/safari-pinned-tab.svg' %}" color="#5bbad5">
+    <link rel="shortcut icon" href="{% static '/assets/images/favicon/favicon.ico' %}">
+    <meta name="msapplication-TileColor" content="#2b5797">
+    <meta name="msapplication-config" content="{% static '/assets/images/favicon/browserconfig.xml' %}">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="stylesheet" href="{% static '/style.css' %}{{ v }}" media="all">
+    <link rel="stylesheet" href="{% static '/additional.css' %}{{ v }}" media="all">
+    {% if about_styles or subcat_styles or main_styles %}
+        <link rel="stylesheet" href="{% static '/assets/vendor/css/swiper.css' %}" media="all">
+    {% endif %}
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript" >
+       (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+       m[i].l=1*new Date();
+       for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+       k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+       (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+    
+       ym(97969890, "init", {
+            clickmap:true,
+            trackLinks:true,
+            accurateTrackBounce:true,
+            webvisor:true
+       });
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/97969890" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    <!-- /Yandex.Metrika counter -->
+
+</head>
+<body>
+<main class="main">
+    <header class="js-header">
+        <div class="container">
+            <div class="header">
+                <div class="header-logo">
+                    <a href="{% url 'main_page' %}"><img src="{% static '/assets/images/logo.svg' %}" alt="{{ main_page.title }}"></a>
+                </div>
+                <div class="header-nav js-mobile-nav">
+                    <nav>
+                        <ul class="nav-list">
+                            <li class="nav-item{% if 'about' in request.path %} active{% endif %}">
+                                <a href="{% url 'about' %}" class="nav-item__link">{{ about_page.menu_name }}</a>
+                            </li>
+                            <li class="nav-item{% if 'catalog' in request.path %} active{% endif %}">
+                                <a href="{% url 'catalog' %}" class="nav-item__link">{{ catalog_page.menu_name }}</a>
+                            </li>
+                            <li class="nav-item{% if 'manufacturers' in request.path %} active{% endif %}">
+                                <a href="{% url 'manufacturers' %}" class="nav-item__link">{{ manufacturer_page.menu_name }}</a>
+                            </li>
+                            <li class="nav-item{% if 'contacts' in request.path %} active{% endif %}">
+                                <a href="{% url 'contacts' %}" class="nav-item__link">{{ contacts_page.menu_name }}</a>
+                            </li>
+                            <li class="nav-item nav-item--mobile">
+                                <a href="tel:{{ contacts_page.header_phone }}" class="nav-item__link">
+                                    {{ contacts_page.header_phone }}
+                                </a>
+                            </li>
+                            <li class="nav-item nav-item--mobile">
+                                <button class="header-order-btn__link js-popup-link" data-popup="order">Оставить заявку</button>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+                {% if contacts_page.telegram or contacts_page.whatsapp %}
+                    <div class="header-social">
+                        {% if contacts_page.telegram %}
+                            <a href="https://t.me/{{ contacts_page.telegram }}" class="header-social__link" target="_blank">
+                                <img src="{% static '/assets/images/icons/telegram.svg' %}" alt="{{ main_page.title }} Telegram">
+                            </a>
+                        {% endif %}
+                        {% if contacts_page.whatsapp %}
+                            <a href="https://wa.me/{{ contacts_page.whatsapp }}" class="header-social__link" target="_blank">
+                                <img src="{% static '/assets/images/icons/wa.svg' %}" alt="{{ main_page.title }} Whatsapp">
+                            </a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+                <div class="header-phone">
+                    <a href="tel:{{ contacts_page.header_phone }}" class="header-phone__link">
+                        {{ contacts_page.header_phone }}
+                    </a>
+                </div>
+                <div class="header-order-btn">
+                    <button class="header-order-btn__link js-popup-link" data-popup="order">Оставить заявку</button>
+                </div>
+                <div class="mobile-menu">
+                    <button class="js-mobile-menu-btn mobile-menu__btn">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+    {% block content %}
+    {% endblock %}
+    <footer>
+        <div class="container">
+            <div class="footer">
+                <div class="footer-logo">
+                    <a href="{% url 'main_page' %}">
+                        <img src="{% static '/assets/images/logo-dark.svg' %}" alt="{{ main_page.title }}">
+                    </a>
+                </div>
+                <div class="footer-copyright">
+                    {% now "Y" as current_year %}
+                    © 2023-{{ current_year }} «Astra Technology»
+                </div>
+                {% if contacts_page.telegram or contacts_page.whatsapp %}
+                    <div class="footer-social">
+                        {% if contacts_page.telegram %}
+                            <a href="https://t.me/{{ contacts_page.telegram }}" class="social-link social-link__tg-dark" target="_blank"></a>
+                        {% endif %}
+                        {% if contacts_page.whatsapp %}
+                            <a href="https://wa.me/{{ contacts_page.whatsapp }}" class="social-link social-link__wa-dark" target="_blank"></a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+                <div class="footer-phone">
+                    <a href="tel:{{ contacts_page.header_phone }}">{{ contacts_page.header_phone }}</a>
+                </div>
+                <div class="footer-btn">
+                    <button class="btn btn-second js-popup-link" data-popup="order">Оставить заявку</button>
+                </div>
+            </div>
+            <div class="footer--links">
+                <p>
+                    <a href="{{ contacts_page.first_file.url }}" target="_blank">Согласие на обработку персональных данных</a>
+                </p>
+                <p>
+                    <a href="{{ contacts_page.second_file.url }}" target="_blank">Положение по работе с персональными данными</a>
+                </p>
+                <p>
+                    <a href="{{ contacts_page.third_file.url }}" target="_blank">Политика использования файлов cookies</a>
+                </p>
+                <p>
+                    <a href="{{ contacts_page.fourth_file.url }}" target="_blank">Согласие на обработку персональных данных, собираемых метрическими системами</a>
+                </p>
+            </div>
+        </div>
+    </footer>
+    <div class="s-cookie s-cookie--inside">
+    </div>
+    <div class="s-cookie">
+        <div class="s-cookie-wrapper">
+            <p class="s-cookie__text">На нашем сайте мы используем<span> файлы cookies. <a href="{{ contacts_page.third_file.url }}" target="_blank">Подробнее</a></span></p>
+            <a href="javascript:void(0);" class="js-accept-cookie">Принять</a>
+        </div>
+    </div>
+</main>
+{% include 'form.html' %}
+<div class="js-overlay overlay"></div>
+
+{% if about_styles or subcat_styles or main_styles or contact_styles or manufacturer_styles %}
+        <script src="{% static '/assets/vendor/js/swiper.js' %}"></script>
+{% endif %}
+<script src="{% static '/assets/vendor/js/jquery.js' %}"></script>
+<script src="{% static '/jquery.validate.min.js' %}"></script>
+<script src="{% static '/mask.min.js' %}"></script>
+<script src="{% static '/messages_ru.min.js' %}"></script>
+<script src="{% static '/assets/js/main.js' %}{{ v }}"></script>
+<script src="{% static '/js.cookie.min.js' %}{{ v }}"></script>
+<script src="{% static '/additional.js' %}{{ v }}"></script>
+</body>
+</html>
+

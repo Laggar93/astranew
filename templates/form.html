@@ -1,0 +1,81 @@
+{% load static %}
+<div class="popup-wrap js-popup-wrap">
+    <div class="popup-overlay js-popup-close"></div>
+    <div class="popup popup--small js-popup" data-popup="order">
+        <button class="popup__close js-popup-close"></button>
+        <div class="popup-overlow">
+            <div class="popup__title">
+                Оставить заявку
+            </div>
+            <div class="form-msg popup__text">
+                Оставьте заявку, и наш менеджер свяжется с вами ближайшее время.
+            </div>
+            <div class="popup__content">
+                <form action="{% url 'form' %}" method="POST" class="order-form" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="url" value="{{ request.path }}">
+                    <div class="field">
+                        <div class="field-col">
+                            <input type="text" placeholder="ФИО" class="field-text" name="name" required>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="field-col">
+                            <input type="text" placeholder="Компания" name="company" class="field-text" required>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="field-col">
+                            <input type="text" placeholder="Телефон" name="phone" class="field-text" required id="phone">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="field-col">
+                            <input type="email" placeholder="E-mail" name="email" class="field-text" required>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="field-col">
+                            <textarea placeholder="Ваш вопрос" name="message" class="field-textarea"></textarea>
+                        </div>
+                    </div>
+                    <div class="field field__file">
+                        <div class="field-col">
+                            <label for="file" class="field-files js-field-file">
+                                <input type="file" id="file" class="js-file-input" name="file">
+                                <div class="js-file-list files-list"></div>
+                                <a href="#" class="js-file-list__clear file-list__clear"></a>
+                                <span>Прикрепить файл</span>
+                                <br>до 5 МБ
+                            </label>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="field-col">
+                            <label class="field-checkbox">
+                                <input type="checkbox" class="field-checkbox__input" name="agree" required/>
+                                <label for="agree">Я согласен на обработку <a href="{{ contacts_page.first_file.url }}">Персональных данных</a></label>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="field field--action">
+                        <div class="field-col">
+                            <button type="submit" class="btn btn-main btn-wide js-form-submit" id="submit">Отправить</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="popup popup--small js-popup" data-popup="thanks">
+        <button class="popup__close js-popup-close"></button>
+        <div class="popup-overlow">
+            <div class="popup__title">
+                Ваша заявка успешно отправлена
+            </div>
+            <div class="popup__text">
+                Наш менеджер свяжется с вами ближайшее время.
+            </div>
+        </div>
+    </div>
+</div>

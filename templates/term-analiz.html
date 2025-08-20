@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% block seo %}
+    <title>{{ current_subcategory.title }}</title>
+    <meta name="description" content="{{ current_subcategory.description }}">
+    <meta name="keywords" content="{{ current_subcategory.keywords }}">
+    <meta property="og:title" content="{{ current_subcategory.title }}">
+    <meta property="og:description" content="{{ current_subcategory.description }}">
+    <meta property="og:keywords" content="{{ current_subcategory.keywords }}">
+    <meta property="og:url" content="{{ site_name }}{{ request.path }}">
+{% endblock %}
+{% load static %}
+{% block content %}
+    <!-- breadcrumbs -->
+    <section class="section-block section-block--eq-page-detail" id="section-page">
+        <div class="container">
+            <ul class="breadcrumbs">
+                <li class="breadcrumbs-item">
+                    <a href="{% url 'main_page' %}" class="breadcrumbs-item__link">Главная</a>
+                </li>
+                <li class="breadcrumbs-item">
+                    <a href="{% url 'catalog' %}" class="breadcrumbs-item__link">{{ catalog_page.section_title }}</a>
+                </li>
+                <li class="breadcrumbs-item">
+                    <a href="{% url 'category' current_category.slug %}" class="breadcrumbs-item__link">{{ current_category.cat_title }}</a>
+                </li>
+                <li class="breadcrumbs-item">
+                    {{ current_subcategory.subcategory_title }}
+                </li>
+            </ul>
+            <div class="page-content">
+                <h1>{{ current_subcategory.subcategory_title }}</h1>
+                <div class="text-block text-block--image">
+                    <div class="text-block__content">
+                        {% autoescape off %}{{ current_subcategory.subcategory_description }}{% endautoescape %}
+                        <button class="btn btn-main js-popup-link" data-popup="order">Оставить заявку</button>
+                    </div>
+                    {% if current_subcategory.image %}
+                        <div class="text-block__image">
+                            <picture>
+                                {% if current_subcategory.image_webp %}
+                                    <source srcset="{{ current_subcategory.image_webp.url }}">
+                                {% endif %}
+                                {% if current_subcategory.image_2x_webp %}
+                                    <source srcset="{{ current_subcategory.image_2x_webp.url }} 2x">
+                                {% endif %}
+                                <img src="{% if current_subcategory.image_jpg %}{{ current_subcategory.image_jpg.url }}{% endif %}"
+                                     srcset="{% if current_subcategory.image_2x_jpg %}{{ current_subcategory.image_2x_jpg.url }}{% endif %} 2x">
+                            </picture>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- section manufactures -->
+    <section class="section-block section-block--gray" id="section-manufactures">
+        <div class="container">
+            <h2 class="h2-title h2-title--w-nav">
+                Производители
+                <div class="js-manufactures-nav swiper-button-prev"></div>
+                <div class="js-manufactures-nav swiper-button-next"></div>
+            </h2>
+            <div class="manufactures-slider">
+                <div class="swiper js-manufactures-slider">
+                    <div class="swiper-wrapper swiper-bg">
+                        {% for i, j in about_mans %}
+                            <div class="swiper-slide">
+                                {% if i.image_about %}
+                                    <div class="manufactures-item">
+                                        <picture>
+                                            <img src="{{ i.image_about.url }}" alt="{{ i.name }}">
+                                        </picture>
+                                    </div>
+                                {% endif %}
+                                {% if j.image_about %}
+                                    <div class="manufactures-item">
+                                        <picture>
+                                            <img src="{{ j.image_about.url }}" alt="{{ j.name }}">
+                                        </picture>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="js-manufactures-nav swiper-pagination"></div>
+            <a class="btn btn-main btn__all" href="/manufacturers">Показать всех</a>
+            </div>
+        </div>
+    </section>
+    <!-- section products -->
+    <section class="section-block" id="section-products-have">
+        <div class="container">
+            <h2 class="h2-title h2-title--w-nav">
+                Складские остатки
+                <div class="js-products-have-nav swiper-button-prev"></div>
+                <div class="js-products-have-nav swiper-button-next"></div>
+            </h2>
+            <div class="products-have-slider">
+                <div class="swiper js-products-have">
+                    <div class="swiper-wrapper">
+                        {% for i in products_left %}
+                            {% if i.leftovers %}
+                                <div class="swiper-slide">
+                                    <div class="product-teaser">
+                                        <a href="{% url 'product_detail' current_category.slug current_subcategory.slug i.slug %}" class="product-teaser__link"></a>
+                                        {% if i.image %}
+                                            <div class="product-teaser__img">
+                                                <picture>
+                                                    <source srcset="{{ i.image_other_webp.url }}">
+                                                    <img src="{{ i.image_other_png.url }}" srcset="{{ i.image_other_png2x.url }} 2x">
+                                                </picture>
+                                            </div>
+                                        {% endif %}
+                                        <div class="product-teaser__title">
+                                            {{ i.product_title }}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="js-products-have-nav swiper-pagination"></div>
+            </div>
+        </div>
+    </section>
+    <!-- section contacts -->
+    {% include 'contacts_part.html' %}
+{% endblock %}

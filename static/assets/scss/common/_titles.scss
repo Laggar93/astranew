@@ -1,0 +1,100 @@
+h1,
+.h1-title {
+  font-family: $font_xolo;
+  font-size: 32px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 1.4;
+  text-transform: uppercase;
+  margin: 0 0 48px 0;
+  padding: 0;
+
+  @media (max-width: 768px) {
+    font-size: 24px;
+    margin-bottom: 32px;
+  }
+}
+
+h2,
+.h2-title {
+  font-family: $font_xolo;
+  font-size: 32px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 1.4;
+  text-transform: uppercase;
+  margin: 0 0 48px 0;
+  padding: 0;
+
+  &--w-nav {
+    position: relative;
+
+    .swiper-button-prev {
+      left: auto;
+      right: 48px;
+      top: 8px;
+      margin: 0;
+
+      @media (max-width: 1024px) {
+        display: none;
+      }
+    }
+
+    .swiper-button-next {
+      right: 0;
+      top: 8px;
+      margin: 0;
+
+      @media (max-width: 1024px) {
+        display: none;
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    font-size: 24px;
+    margin-bottom: 32px;
+  }
+}
+
+h3,
+.h3-title {
+  font-family: $font_xolo;
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 1.4;
+  text-transform: uppercase;
+  margin: 0 0 48px 0;
+  padding: 0;
+
+  &--w-nav {
+    position: relative;
+
+    .swiper-button-prev {
+      left: auto;
+      right: 48px;
+      top: 8px;
+      margin: 0;
+
+      @media (max-width: 1024px) {
+        display: none;
+      }
+    }
+
+    .swiper-button-next {
+      right: 0;
+      top: 8px;
+      margin: 0;
+
+      @media (max-width: 1024px) {
+        display: none;
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    font-size: 24px;
+    margin-bottom: 32px;
+  }
+}

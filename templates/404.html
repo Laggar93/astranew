@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block seo %}
+    <title>404</title>
+    <meta name="description" content="404">
+    <meta name="keywords" content="404">
+    <meta property="og:title" content="404">
+    <meta property="og:description" content="404">
+    <meta property="og:keywords" content="404">
+{% endblock %}
+{% block content %}
+
+<!-- breadcrumbs -->
+<section class="section-block" id="section-page">
+    <div class="container">
+        <div class="page-content">
+            <h1>Страница не найдена</h1>
+            <p>Запрашиваемая страница была удалена или не существовала на сайте</p>
+            <div class="error-page-btn">
+                <a href="{% url 'catalog' %}" class="btn btn-main btn-wide">В каталог</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- section contacts -->
+{% include 'contacts_part.html' %}
+{% endblock %}
+
+
+
+

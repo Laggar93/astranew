@@ -1,0 +1,47 @@
+{% load static %}
+<section class="section-block section-block--gray-line" id="section-contacts">
+    <div class="container">
+        <h2 class="h2-title">
+            {{ contacts_page.section_title }}
+        </h2>
+        <div class="contacts contacts--reverse">
+            <div class="contacts__info">
+                <p>{{ contacts_page.address|linebreaksbr }}</p>
+                <p>
+                    <a href="tel:{{ contacts_page.first_phone }}" class="contacts__info-phone">{{ contacts_page.first_phone }}</a>
+                    <a href="tel:{{ contacts_page.second_phone }}" class="contacts__info-phone">{{ contacts_page.second_phone }}</a>
+                </p>
+                {% if contacts_page.telegram or contacts_page.whatsapp %}
+                    <div class="contacts__links">
+                        <a href="mailto:{{ contacts_page.email }}">{{ contacts_page.email }}</a>
+                        {% if contacts_page.telegram %}
+                            <a href="https://t.me/{{ contacts_page.telegram }}" class="social-link social-link__tg-dark"></a>
+                        {% endif %}
+                        {% if contacts_page.whatsapp %}
+                            <a href="https://wa.me/{{ contacts_page.whatsapp }}" class="social-link social-link__wa-dark"></a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="contacts__map">
+                <div class="contacts__btn">
+                    <button class="btn btn-main js-popup-link" data-popup="order">связаться с нами</button>
+                </div>
+                <div class="contacts__rekvizit">
+                    <div class="rekvizits-popup js-rekvizits-popup">
+                        <a href="#" class="rekvizits-popup__close js-rekvizits-popup-close"></a>
+                        <div class="rekvizits-popup__title">{{ requisites.title }}</div>
+                        <div class="rekvizits-popup__subtitle">{{ requisites.subtitle }}</div>
+                        {% for i in requisites.requisites_items.all %}
+                            <div class="rekvizits-popup__row">
+                                <div class="rekvizits-popup__row-col-name">{{ i.title }}</div>
+                                <div class="rekvizits-popup__row-col-value">{{ i.subtitle|linebreaksbr }}</div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <button class="btn btn-link-gray js-rekvizit-btn">Реквизиты компании</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

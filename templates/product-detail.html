@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block seo %}
+    <title>{{ current_product.title }}</title>
+    <meta name="description" content="{{ current_product.description }}">
+    <meta name="keywords" content="{{ current_product.keywords }}">
+    <meta property="og:title" content="{{ current_product.title }}">
+    <meta property="og:description" content="{{ current_product.description }}">
+    <meta property="og:keywords" content="{{ current_product.keywords }}">
+    <meta property="og:url" content="{{ site_name }}{{ request.path }}">
+{% endblock %}
+{% load static %}
+{% load float %}
+{% block content %}
+    <!-- breadcrumbs -->
+    <section class="section-block" id="section-page">
+        <div class="container">
+            <ul class="breadcrumbs">
+                <li class="breadcrumbs-item">
+                    <a href="{% url 'main_page' %}" class="breadcrumbs-item__link">Главная</a>
+                </li>
+                <li class="breadcrumbs-item">
+                    <a href="{% url 'catalog' %}" class="breadcrumbs-item__link">{{ catalog_page.section_title }}</a>
+                </li>
+                <li class="breadcrumbs-item">
+                    <a href="{% url 'category' current_category.slug %}" class="breadcrumbs-item__link">{{ current_category.cat_title }}</a>
+                </li>
+                <li class="breadcrumbs-item">
+                    {{ current_subcategory.subcategory_title }}
+                </li>
+            </ul>
+            <div class="page-content">
+                <div class="product-detail">
+                    <h1>{{ current_product.product_title }}</h1>
+                    {% if current_product.image %}
+                        <div class="product-detail__left">
+                            <picture>
+                                <source srcset="{{ current_product.image_detail_webp.url }}">
+                                <img src="{{ current_product.image_detail_png.url }}" srcset="{{ current_product.image_detail_png2x.url }} 2x"
+                                     alt="{{ current_product.product_title }}">
+                            </picture>
+                        </div>
+                    {% endif %}
+                    <div class="product-detail__right">
+                        {% for i in current_product.product_parameters.all %}
+                            <div class="product-detail__row">
+                                <div class="product-detail__title">{{ i.title }}</div>
+                                <div class="product-detail__value">{{ i.subtitle }}</div>
+                            </div>
+                        {% endfor %}
+                        <div class="product-detail__price">
+                            <div class="product-detail__price-value">{{ current_product.product_price|float }} ₽</div>
+                            <div class="product-detail__price-count">за 1 шт. с НДС</div>
+                        </div>
+                        <div class="product-detail__btn">
+                            <button class="btn btn-main js-popup-link" data-popup="order">Оставить заявку</button>
+                        </div>
+                    </div>
+                    <div class="product-detail__full">
+                        <div class="popup-product-detail">
+                            <div class="popup-product-detail__title">Описание</div>
+                            <div class="popup-product-detail__text">{{ current_product.product_description|safe }}</div>
+                        </div>
+                        <div class="popup-product-detail">
+                            <div class="popup-product-detail__title">Характеристики</div>
+                            <div class="popup-product-detail__text">
+                                {% for i in current_product.product_chars.all %}
+                                    <div class="product-detail__row">
+                                        <div class="product-detail__title">{{ i.title }}</div>
+                                        <div class="product-detail__value">{{ i.subtitle|safe }}</div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+        <loc>{{ site_name }}/</loc>
+    </url>
+    <url>
+        <loc>{{ site_name }}/about/</loc>
+    </url>
+    <url>
+        <loc>{{ site_name }}/contacts/</loc>
+    </url>
+    <url>
+        <loc>{{ site_name }}/manufacturers/</loc>
+    </url>
+    <url>
+        <loc>{{ site_name }}/catalogue/</loc>
+    </url>
+    {% for category in categories %}
+        <url>
+            <loc>{{ site_name }}/catalogue/{{ category.slug }}/</loc>
+        </url>
+    {% endfor %}
+    {% for subcategory in subcategories %}
+        <url>
+            <loc>{{ site_name }}/catalogue/{{ subcategory.categories.slug }}/{{ subcategory.slug }}/</loc>
+        </url>
+    {% endfor %}
+    {% for i in product %}
+        {% if i.subcategories %}
+            {% if i.leftovers or i.pop_models %}
+            <url>
+                <loc>{{ site_name }}/catalogue/{{ i.subcategories.categories.slug }}/{{ i.subcategories.slug }}/{{ i.slug }}/</loc>
+            </url>
+                {% endif %}
+        {% endif %}
+    {% endfor %}
+    {% for i in categories %}
+        {% for j in i.categories.all %}
+            {% for c in product %}
+                {% if not c.subcategories %}
+                {% if c.leftovers or c.pop_models %}
+                <url>
+                    <loc>{{ site_name }}/catalogue/{{ i.slug }}/{{ j.slug }}/{{ c.slug }}/</loc>
+                </url>
+                {% endif %}
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+    {% endfor %}
+</urlset>

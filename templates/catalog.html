@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block seo %}
+    <title>{{ catalog_page.title }}</title>
+    <meta name="description" content="{{ catalog_page.description }}">
+    <meta name="keywords" content="{{ catalog_page.keywords }}">
+    <meta property="og:title" content="{{ catalog_page.title }}">
+    <meta property="og:description" content="{{ catalog_page.description }}">
+    <meta property="og:keywords" content="{{ catalog_page.keywords }}">
+    <meta property="og:url" content="{{ site_name }}{{ request.path }}">
+{% endblock %}
+{% load static %}
+{% block content %}
+    <!-- breadcrumbs -->
+    <section class="section-block section-block--catalog" id="section-page">
+        <div class="container">
+            <ul class="breadcrumbs">
+                <li class="breadcrumbs-item">
+                    <a href="{% url 'main_page' %}" class="breadcrumbs-item__link">Главная</a>
+                </li>
+                <li class="breadcrumbs-item">
+                    {{ catalog_page.section_title }}
+                </li>
+            </ul>
+            <div class="page-content">
+                <h1>{{ catalog_page.section_title }}</h1>
+                {% if catalog_page.main_subtitle %}
+                    <div class="page-info">
+                        {{ catalog_page.main_subtitle|linebreaksbr }}
+                    </div>
+                {% endif %}
+                <div class="categories-list">
+                    {% for i in categories %}
+                        <div class="{% if i.categories.count > 0 %}category-item{% else %}category-item category-item_empty{% endif %}">
+                            {% if i.categories.count > 0 %}<a href="{{ i.slug }}" class="category-item__link"></a>{% endif %}
+                            <div class="category-item__img">
+                                <picture>
+                                    <source srcset="{{ i.image_webp.url }}, {{ i.image_2x_webp.url }} 2x">
+                                    <img src="{{ i.image_jpg.url }}" srcset="{{ i.image_2x_jpg.url }} 2x" alt="{{ i.cat_title }}">
+                                </picture>
+                            </div>
+                            <div class="category-item__title">{{ i.cat_title }}</div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- section contacts -->
+    {% include 'contacts_part.html' %}
+{% endblock %}

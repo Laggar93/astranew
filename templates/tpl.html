@@ -1,0 +1,42 @@
+{% if pages_array %}
+    <div class="results-footer">
+        <div class="results-footer__count">
+            Найдено производителей: {{ all_manufacturers.count }}
+        </div>
+        <div class="results-footer__pagination">
+            <ul class="pagination">
+                {% for k in pages_array %}
+                    <li class="pagination-item">
+                        <div class="form_radio_btn">
+                            <input class="update_data" type="radio" name="page" id="radio-{{ k }}" value="{{ k }}" {% if k == page %}checked="checked"{% endif %}>
+                            <label for="radio-{{ k }}">{{ k }}</label>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% endif %}
+<div class="brands-results-row">
+    {% for i in manufacturers %}
+        {% if i.image %}
+            <div class="brands-results-item">
+                <a href="{% if i.link %}{{ i.link }}{% endif %}" target="_blank"><img src="{{ i.image_png.url }}" srcset="{{ i.image_png2x.url }}" alt="{{ i.name }}"></a>
+            </div>
+        {% endif %}
+    {% endfor %}
+</div>
+<script>
+    $(".update_data").click(function () {
+        form = $('.js_data');
+        $.ajax({
+            type: "POST",
+            url: "/test/",
+            data: form.serialize(),
+            success: function (result) {
+                $(".brands-page__results").html(result);
+            }
+        });
+    });
+</script>
+	
