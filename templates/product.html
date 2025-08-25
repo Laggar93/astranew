@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% load float %}
+{% block seo %}
+    <title>Astra Technology | {{ page_title }}</title>
+    <meta name="description" content="{{ page_description }}">
+    <meta name="keywords" content="{{ page_keywords }}">
+    <meta property="og:title" content="Astra Technology | {{ page_title }}">
+    <meta property="og:description" content="{{ page_description }}">
+    <meta property="og:keywords" content="{{ page_keywords }}">
+    <meta property="og:url" content="Astra Technology | {{ page_title }}">
+{% endblock %}
+{% block content %}
+    <!-- breadcrumbs -->
+    <section class="section-block section-block--oborudovanie" id="section-page">
+        <div class="container">
+            <ul class="breadcrumbs">
+                <li class="breadcrumbs-item">
+                    <a href="{% url 'main_page' %}" class="breadcrumbs-item__link">Главная</a>
+                </li>
+                <li class="breadcrumbs-item">
+                    <a href="{% url 'products_view' %}" class="breadcrumbs-item__link">{{ catalog_page.section_title }}</a>
+                </li>
+                <li class="breadcrumbs-item">
+                    <a href="{% url 'products_view' %}{{ current_category.slug }}/" class="breadcrumbs-item__link">{{ current_category.cat_title }}</a>
+                </li>
+                <li class="breadcrumbs-item">
+                    {{ current_product.product_title }}
+                </li>
+            </ul>
+            <div class="page-content page-content__inner">
+				<div class="product-inner">
+                	<h1>{{ current_product.product_title }}</h1>
+					<div class="product-inner__main">
+						<div class="product-inner__main--slider">
+							<div class="swiper banner-swiper">
+								<div class="swiper-wrapper">
+									<a class="swiper-slide" href="{{ current_product.image.url }}" data-fancybox="gallery">
+										<img src="{{ current_product.image.url }}" alt="{{ current_product.product_title }}">
+									</a>
+									{% for i in current_product.product_slider.all %}
+									<a class="swiper-slide" href="{{ i.image.url }}" data-fancybox="gallery">
+										<img src="{{ i.image.url }}" alt="{{ i.alt }}">
+									</a>
+									{% endfor %}
+								</div>
+							</div>
+							<div class="swiper thumb-swiper">
+								<div class="swiper-wrapper">
+									<div class="swiper-slide">
+										<img src="{{ current_product.image.url }}" alt="{{ current_product.product_title }}">
+									</div>
+									{% for i in current_product.product_slider.all %}
+									<div class="swiper-slide">
+										<img src="{{ i.image.url }}" alt="{{ i.alt }}">
+									</div>
+									{% endfor %}
+								</div>
+							</div>
+						</div>
+						<div class="product-inner__main--info">
+							<p class="product-info__main--price">{{ current_product.product_price|float }} <span>₽</span></p>
+							{% if current_product.instock %}
+							<p class="filter-card__instock">В наличии</p>
+							{% else %}
+							<p class="filter-card__instock filter-card__instock--empty">Нет в наличии</p>
+							{% endif %}
+							<a href="javascript:void(0);" class="product-info__main--order js-popup-link" data-popup="order">Заказать {{ i.subcategories.id }}</a>
+							<div class="product-inner_main--text">
+								<p><strong>Основные особенности</strong></p>
+								{% autoescape off %}{{ current_product.product_description }}{% endautoescape %}
+							</div>
+						</div>
+					</div>
+					<div class="product-inner__additional">
+						<div class="product-inner__additional--tabs">
+							<a href="javascript:void(0);" attr-id="tab-1" class="product-inner__additional--activetab">Характеристики</a>
+							<a href="javascript:void(0);" attr-id="tab-2">Описание</a>
+							<a href="javascript:void(0);" attr-id="tab-3">Документация</a>
+							<a href="javascript:void(0);" attr-id="tab-4">Оплата и доставка</a>
+						</div>
+						<div class="product-inner__additional--content">
+							<div class="product-inner__additional--item product-inner__additional--activeitem" id="tab-1">
+								<div class="product-inner__additional--flex">
+									{% for i in current_product.product_chars.all %}
+										<div class="product-detail__row">
+											<div class="product-detail__title">{{ i.title }}</div>
+											<div class="product-detail__value">{{ i.subtitle|safe }}</div>
+										</div>
+									{% endfor %}
+								</div>
+							</div>
+							<div class="product-inner__additional--item" id="tab-2">
+								<div class="product-inner__additional--flex">
+									{% autoescape off %}{{ current_product.product_description }}{% endautoescape %}
+								</div>
+							</div>
+							<div class="product-inner__additional--item" id="tab-3">
+								<div class="product-inner__additional--flex">
+									{% for item in current_product.product_file.all %}
+									<p><a href="{{ item.file.url }}" target="_blank">{{ item.name }}</a></p>
+									{% endfor %}
+								</div>
+							</div>
+							<div class="product-inner__additional--item" id="tab-4">
+								<div class="product-inner__additional--flex">
+									{% autoescape off %}{{ catalog_page.dostavka }}{% endautoescape %}
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			{% include 'seo_faq.html' %}
+		</div>
+	</section>
+{% endblock %}

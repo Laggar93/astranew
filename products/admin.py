@@ -5,7 +5,19 @@ from django.utils.html import format_html
 admin.site.unregister(auth.models.User)
 admin.site.unregister(auth.models.Group)
 from adminsortable2.admin import SortableAdminMixin, SortableInlineAdminMixin
-from .models import catalog_page, categories, subcategories, product, product_parameters, product_chars
+from .models import catalog_page, categories, subcategories, product, product_parameters, product_chars, brands, countries, faq_catalogue_page, faq_categories, product_slider, product_file
+
+
+class faq_catalogue_page_admin(SortableInlineAdminMixin, admin.StackedInline):
+    model = faq_catalogue_page
+    ordering = ('order',)
+    extra = 0
+
+
+class faq_categories_admin(SortableInlineAdminMixin, admin.StackedInline):
+    model = faq_categories
+    ordering = ('order',)
+    extra = 0
 
 
 class subcategoriesAdminForm(forms.ModelForm):
@@ -17,11 +29,25 @@ class subcategoriesAdminForm(forms.ModelForm):
         }
 
 
+class product_slider_admin(SortableInlineAdminMixin, admin.StackedInline):
+    model = product_slider
+    ordering = ('order',)
+    readonly_fields = ('display_image',)
+    extra = 0
+
+
+class product_file_admin(SortableInlineAdminMixin, admin.StackedInline):
+    model = product_file
+    ordering = ('order',)
+    extra = 0
+
+
 class categories_admin(SortableAdminMixin, admin.ModelAdmin):
     model = categories
     save_on_top = True
     ordering = ('order',)
     readonly_fields = ('display_image',)
+    inlines = [faq_categories_admin]
     exclude = ('image_2x_webp', 'image_2x_jpg', 'image_webp', 'image_jpg',)
 
 
@@ -49,7 +75,7 @@ class product_chars_admin(SortableInlineAdminMixin, admin.StackedInline):
 
 class product_admin(SortableAdminMixin, admin.ModelAdmin):
     model = product
-    inlines = [product_parameters_admin, product_chars_admin]
+    inlines = [product_parameters_admin, product_chars_admin, product_slider_admin, product_file_admin]
     save_on_top = True
     ordering = ('order',)
     readonly_fields = ('display_image',)
@@ -73,6 +99,7 @@ class subcategory_page_admin(admin.ModelAdmin):
 
 
 class catalog_page_admin(admin.ModelAdmin):
+    inlines = [faq_catalogue_page_admin]
     save_on_top = True
     def has_add_permission(self, request, obj=None):
         return False
@@ -80,7 +107,17 @@ class catalog_page_admin(admin.ModelAdmin):
         return False
 
 
+class brands_admin(admin.ModelAdmin):
+    ordering = ('-brand_title',)
+
+
+class countries_admin(admin.ModelAdmin):
+    ordering = ('-country_title',)
+
+
 admin.site.register(catalog_page, catalog_page_admin)
 admin.site.register(categories, categories_admin)
 admin.site.register(subcategories, subcategories_admin)
 admin.site.register(product, product_admin)
+admin.site.register(brands, brands_admin)
+admin.site.register(countries, countries_admin)

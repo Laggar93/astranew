@@ -1,0 +1,67 @@
+					{% load float %}
+					{% load static %}
+					{% if products %}
+					<div class="filter-form__top">
+						<div class="filter-form__amount">
+							<select class="filter-form-select filter-form__amount--input" name="amount" data-select-style="primary" onchange="add_params('amount',this.value);">
+								<option value="6"{% if not params.7 or params.7 == 6 %} selected{% endif %}>6 шт.</option>
+								<option value="12"{% if params.7 == 12 %} selected{% endif %}>12 шт.</option>
+								<option value="18"{% if params.7 == 18 %} selected{% endif %}>18 шт.</option>
+							</select>
+						</div>
+						<div class="filter-form__sort">
+							<select class="filter-form-select filter-form__sort--input" name="sort" data-select-style="primary" onchange="add_params('sort',this.value);">
+								<option value="name"{% if not params.8 or params.8 == 'name' %} selected{% endif %}>По названию</option>
+								<option value="new"{% if params.8 == 'new' %} selected{% endif %}>Новые</option>
+								<option value="price_asc"{% if params.8 == 'price_asc' %} selected{% endif %}>Дешевле</option>
+								<option value="price_desc"{% if params.8 == 'price_desc' %} selected{% endif %}>Дороже</option>
+							</select>
+						</div>
+					</div>
+					<div class="filter-form__items">
+						{% for i in products %}
+						<div class="filter-form__items--card">
+							<a href="/products/{{ i.subcategories.categories.slug }}/{{ i.slug }}/" class="filter-card__image">
+								{% if i.image %}
+								<img src="{{ i.image.url }}" alt="{{ i.product_title }}">
+								{% else %}
+								<img src="{% static 'placeholder.png' %}" alt="{{ i.product_title }}">
+								{% endif %}
+							</a>
+							<a href="/products/{{ i.subcategories.categories.slug }}/{{ i.slug }}/"class="filter-card__url">{{ i.product_title }}</a>
+							<div class="filter-card__info">
+								<p class="filter-card__price">{{ i.product_price|float }} <span>₽</span></p>
+								{% if i.instock %}
+								<p class="filter-card__instock">В наличии</p>
+								{% else %}
+								<p class="filter-card__instock filter-card__instock--empty">Нет в наличии</p>
+								{% endif %}
+							</div>
+							<p class="filter-card__text">{{ i.article }}</p>
+							{% if not current_category %}
+							<p class="filter-card__text">{{ i.subcategories.categories.cat_title }}</p>
+							{% endif %}
+							<p class="filter-card__text">{{ i.countries.country_title }}</p>
+							<p class="filter-card__text filter-card__text--black">{{ i.brands.brand_title }}</p>
+							<a href="javascript:void(0);" class="filter-card__order js-popup-link" data-popup="order">Заказать {{ i.subcategories.id }}</a>
+						</div>
+						{% endfor %}
+					</div>
+					{% if pages != 1 %}
+					<div class="filter-form__bottom">
+						<input type="hidden" name="page" value="{{ params.9 }}">
+						<div class="filter-form__pages">
+							{% for i in pages_array %}
+							<a href="javascript:void(0)" attr-page="{{ i }}"{% if i == params.9 %} class="filter-form__pages--active"{% endif %}>{{ i }}</a>
+							{% endfor %}
+						</div>
+						{% if pages != params.9 %}
+						<div class="filter-form__next">
+							<a href="javascript:void(0)" attr-next="{{ params.9|add:"1" }}">Показать еще</a>
+						</div>
+						{% endif %}
+					</div>
+					{% endif %}
+					{% else %}
+					<p class="filter__empty">Товары не найдены</p>
+					{% endif %}

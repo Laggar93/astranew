@@ -7,7 +7,7 @@ from main.forms import form_contact
 from astra.config import site_name
 
 
-v = '?v=3'
+v = '?v=4'
 
 
 def globals(request):

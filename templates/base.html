@@ -24,6 +24,14 @@
     {% if about_styles or subcat_styles or main_styles %}
         <link rel="stylesheet" href="{% static '/assets/vendor/css/swiper.css' %}" media="all">
     {% endif %}
+    {% if is_filter %}
+        <link rel="stylesheet" href="{% static '/select2.min.css' %}" media="all">
+    {% if is_card %}
+        <link rel="stylesheet" href="{% static '/swiper-bundle.min.css' %}" media="all">
+        <link rel="stylesheet" href="{% static '/jquery.fancybox.min.css' %}" media="all">
+    {% endif %}
+        <link rel="stylesheet" href="{% static '/filter.css' %}" media="all">
+    {% endif %}
     <!-- Yandex.Metrika counter -->
     <script type="text/javascript" >
        (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
@@ -41,7 +49,6 @@
     </script>
     <noscript><div><img src="https://mc.yandex.ru/watch/97969890" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
     <!-- /Yandex.Metrika counter -->
-
 </head>
 <body>
 <main class="main">
@@ -178,6 +185,14 @@
 <script src="{% static '/assets/js/main.js' %}{{ v }}"></script>
 <script src="{% static '/js.cookie.min.js' %}{{ v }}"></script>
 <script src="{% static '/additional.js' %}{{ v }}"></script>
+    {% if is_filter %}
+        <script src="{% static '/select2.full.min.js' %}{{ v }}"></script>
+    {% if is_card %}
+        <script src="{% static '/swiper-bundle.min.js' %}{{ v }}"></script>
+        <script src="{% static '/jquery.fancybox.min.js' %}{{ v }}"></script>
+    {% endif %}
+        <script src="{% static '/filter.js' %}{{ v }}"></script>
+    {% endif %}
 </body>
 </html>
 

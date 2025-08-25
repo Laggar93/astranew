@@ -77,13 +77,19 @@ def resize_img(f1, f2, fs, format=None, color=None):
         if ratio_current <= ratio_new:
             new_width = (fs[1] * new_img1.size[0]) / new_img1.size[1]
             new_height = fs[1]
-            resized_new_img1 = new_img1.resize((int(new_width), int(new_height)), Image.ANTIALIAS)
+            try:
+                resized_new_img1 = new_img1.resize((int(new_width), int(new_height)), Image.ANTIALIAS)
+            except:
+                resized_new_img1 = new_img1.resize((int(new_width), int(new_height)), Image.Resampling.LANCZOS)
             box = ((resized_new_img1.size[0] - fs[0]) / 2, 0, resized_new_img1.size[0] - (resized_new_img1.size[0] - fs[0]) / 2, resized_new_img1.size[1])
             resized_new_img1 = resized_new_img1.crop(box)
         else:
             new_width = fs[0]
             new_height = (new_img1.size[1] * fs[0]) / new_img1.size[0]
-            resized_new_img1 = new_img1.resize((int(new_width), int(new_height)), Image.ANTIALIAS)
+            try:
+                resized_new_img1 = new_img1.resize((int(new_width), int(new_height)), Image.ANTIALIAS)
+            except:
+                resized_new_img1 = new_img1.resize((int(new_width), int(new_height)), Image.Resampling.LANCZOS)
             box = (0, (resized_new_img1.size[1] - fs[1]) / 2, resized_new_img1.size[0], resized_new_img1.size[1] - (resized_new_img1.size[1] - fs[1]) / 2)
             resized_new_img1 = resized_new_img1.crop(box)
 
@@ -99,7 +105,10 @@ def resize_img(f1, f2, fs, format=None, color=None):
             width = int(fs / (img_h / img_w))
             resize_size = [width, fs]
         
-        resized_new_img1 = new_img1.resize(resize_size, Image.ANTIALIAS)
+        try:
+            resized_new_img1 = new_img1.resize(resize_size, Image.ANTIALIAS)
+        except:
+            resized_new_img1 = new_img1.resize(resize_size, Image.Resampling.LANCZOS)
 
     filestream1 = BytesIO()
 

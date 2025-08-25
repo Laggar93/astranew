@@ -9,7 +9,7 @@ def float(price):
      
     if price:
         
-        return '{:,}'.format(price).replace(',', ' ').replace('.0', '')
+        return '{:,}'.format(price).replace(',', ' ').replace('.0', '').replace('.', ',')
     
     else:
           

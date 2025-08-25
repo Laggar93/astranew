@@ -1,0 +1,45 @@
+			{% load static %}
+			{% if seo or faq %}
+			<div class="filter-additional">
+				<div class="filter-additional__left">
+					<img src="{% static 'circle.png' %}" alt="FAQ">
+				</div>
+				<div class="filter-additional__right">
+					{% if seo %}
+					<div class="filter-additional__right--item">
+						<div class="filter-additional__right--text">
+							{% autoescape off %}{{ seo }}{% endautoescape %}
+						</div>
+					</div>
+					{% endif %}
+					{% if faq %}
+					<div class="filter-additional__right--item">
+						<h2>FAQ</h2>
+						<div class="filter-additionfal__faq">
+							{% for i in faq %}
+							<div class="filter-additional__faq--item">
+								<a href="javascript:void(0)">
+									<span>{{ i.question }}</span>
+									<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+										<path d="M9.09091 19.0909V10.9091H0.909091C0.407014 10.9091 0 10.5021 0 10C2.04992e-07 9.49792 0.407014 9.09091 0.909091 9.09091H9.09091V0.909091C9.09091 0.407014 9.49792 2.0499e-07 10 0C10.5021 0 10.9091 0.407014 10.9091 0.909091V9.09091H19.0909C19.593 9.09091 20 9.49792 20 10C20 10.5021 19.593 10.9091 19.0909 10.9091H10.9091V19.0909C10.9091 19.593 10.5021 20 10 20C9.49792 20 9.09091 19.593 9.09091 19.0909Z" fill="url(#paint0_linear_166_6)"/>
+										<defs>
+										<linearGradient id="paint0_linear_166_6" x1="0.726257" y1="8.04348" x2="20.2925" y2="8.68476" gradientUnits="userSpaceOnUse">
+										<stop stop-color="#37A0E7"/>
+										<stop offset="1" stop-color="#C507D9"/>
+										</linearGradient>
+										</defs>
+									</svg>
+								</a>
+								<div class="filter-additional__faq--answer">
+									<div class="filter-additional__faq--inner">
+										{% autoescape off %}{{ i.answer }}{% endautoescape %}
+									</div>
+								</div>
+							</div>
+							{% endfor %}
+						</div>
+					</div>
+					{% endif %}
+				</div>
+			</div>
+			{% endif %}

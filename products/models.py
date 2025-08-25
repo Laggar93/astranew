@@ -2,9 +2,10 @@ from ckeditor.fields import RichTextField
 from django.db import models
 from django.urls import reverse
 
-from astra.functions import get_file_path, image_help_text, svg_help_text, resize_img, make_slug
+from astra.functions import get_file_path, image_help_text, svg_help_text, resize_img, make_slug, pdf_help_text
 from django.utils.html import format_html
 from django.utils.functional import cached_property
+from django.core.validators import FileExtensionValidator
 
 
 class catalog_page(models.Model):
@@ -18,12 +19,42 @@ class catalog_page(models.Model):
 
     main_subtitle = models.TextField('Подзаголовок', blank=True)
 
+    seo = RichTextField('Текст для SEO', blank=True)
+
+    dostavka = RichTextField('Оплата и доставка', blank=True)
+
     def __str__(self):
         return 'Общая страница каталога'
 
     class Meta:
         verbose_name = 'Общая страница каталога'
         verbose_name_plural = 'Общая страница каталога'
+
+
+class brands(models.Model):
+
+    brand_title = models.CharField('Наименование бренда', max_length=1000)
+
+    def __str__(self):
+        return self.brand_title
+
+    class Meta:
+        ordering = ['-brand_title']
+        verbose_name = 'Бренд'
+        verbose_name_plural = 'Бренды'
+
+
+class countries(models.Model):
+
+    country_title = models.CharField('Наименование бренда', max_length=1000)
+
+    def __str__(self):
+        return self.country_title
+
+    class Meta:
+        ordering = ['-country_title']
+        verbose_name = 'Страна'
+        verbose_name_plural = 'Страны'
 
 
 class categories(models.Model):
@@ -44,6 +75,8 @@ class categories(models.Model):
 
 
     __original_image = None
+
+    seo = RichTextField('Текст для SEO', blank=True)
 
     def __init__(self, *args, **kwargs):
         super(categories, self).__init__(*args, **kwargs)
@@ -161,6 +194,13 @@ class product(models.Model):
 
     __original_image = None
 
+    instock = models.BooleanField('В наличии', default=True, blank=True)
+    article = models.CharField('Артикул', max_length=1000)
+    brands = models.ForeignKey(brands, verbose_name='Бренд', on_delete=models.CASCADE, related_name='product_brands')
+    countries = models.ForeignKey(countries, verbose_name='Страна', on_delete=models.CASCADE, related_name='product_country')
+
+    seo = RichTextField('Текст для SEO', blank=True)
+
     def __init__(self, *args, **kwargs):
         super(product, self).__init__(*args, **kwargs)
         self.__original_image = self.image
@@ -227,6 +267,97 @@ class product_chars(models.Model):
         ordering = ['order']
         verbose_name = 'Характеристика'
         verbose_name_plural = 'Характеристики'
+
+
+class faq_catalogue_page(models.Model):
+
+    order = models.IntegerField('Порядок')
+
+    catalog_page = models.ForeignKey(catalog_page, on_delete=models.CASCADE, related_name='faq_catalog_page')
+
+    question = models.CharField('Вопрос', max_length=1000)
+    answer = RichTextField('Ответ')
+
+    def __str__(self):
+        return str(self.id)
+
+    class Meta:
+        ordering = ['order']
+        verbose_name = 'Вопрос'
+        verbose_name_plural = 'Вопросы'
+
+
+class faq_categories(models.Model):
+
+    order = models.IntegerField('Порядок')
+
+    categories = models.ForeignKey(categories, on_delete=models.CASCADE, related_name='faq_categories')
+
+    question = models.CharField('Вопрос', max_length=1000)
+    answer = RichTextField('Ответ')
+
+    def __str__(self):
+        return str(self.id)
+
+    class Meta:
+        ordering = ['order']
+        verbose_name = 'Вопрос'
+        verbose_name_plural = 'Вопросы'
+
+
+class product_slider(models.Model):
+
+    order = models.IntegerField('Порядок')
+
+    product = models.ForeignKey(product, on_delete=models.CASCADE, related_name='product_slider')
+
+    image = models.ImageField('Изображение', upload_to=get_file_path, help_text=image_help_text)
+    __original_image = None
+
+    alt = models.CharField('alt-тег', max_length=500)
+
+    def __init__(self, *args, **kwargs):
+        super(product_slider, self).__init__(*args, **kwargs)
+        self.__original_image = self.image
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.image and self.image != self.__original_image:
+            self.image = resize_img(self.image, self.image, 1024, 'jpeg')
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return str(self.id)
+
+    class Meta:
+        ordering = ['order']
+        verbose_name = 'Слайд'
+        verbose_name_plural = 'Слайды'
+
+    @cached_property
+    def display_image(self):
+        return format_html('<img src="{img}" width="300">', img=self.image.url)
+    display_image.short_description = 'Предпросмотр изображения'
+
+
+class product_file(models.Model):
+
+    order = models.IntegerField('Порядок')
+
+    product = models.ForeignKey(product, on_delete=models.CASCADE, related_name='product_file')
+
+    file = models.FileField('Документ', upload_to=get_file_path, help_text=pdf_help_text,
+                                 validators=[FileExtensionValidator(['pdf'])])
+
+    name = models.CharField('Название', max_length=500)
+
+    def __str__(self):
+        return str(self.id)
+
+    class Meta:
+        ordering = ['order']
+        verbose_name = 'Документ'
+        verbose_name_plural = 'Документы'
 
 
 
