@@ -3,13 +3,15 @@
 					{% if products %}
 					<div class="filter-form__top">
 						<div class="filter-form__amount">
+							<p>Кол-во товаров:</p>
 							<select class="filter-form-select filter-form__amount--input" name="amount" data-select-style="primary" onchange="add_params('amount',this.value);">
-								<option value="6"{% if not params.7 or params.7 == 6 %} selected{% endif %}>6 шт.</option>
-								<option value="12"{% if params.7 == 12 %} selected{% endif %}>12 шт.</option>
-								<option value="18"{% if params.7 == 18 %} selected{% endif %}>18 шт.</option>
+								<option value="6"{% if not params.7 or params.7 == 36 %} selected{% endif %}>36 шт.</option>
+								<option value="12"{% if params.7 == 72 %} selected{% endif %}>72 шт.</option>
+								<option value="18"{% if params.7 == 108 %} selected{% endif %}>108 шт.</option>
 							</select>
 						</div>
 						<div class="filter-form__sort">
+							<p>Сортировка:</p>
 							<select class="filter-form-select filter-form__sort--input" name="sort" data-select-style="primary" onchange="add_params('sort',this.value);">
 								<option value="name"{% if not params.8 or params.8 == 'name' %} selected{% endif %}>По названию</option>
 								<option value="new"{% if params.8 == 'new' %} selected{% endif %}>Новые</option>
@@ -30,7 +32,11 @@
 							</a>
 							<a href="/products/{{ i.subcategories.categories.slug }}/{{ i.slug }}/"class="filter-card__url">{{ i.product_title }}</a>
 							<div class="filter-card__info">
+								{% if i.product_price %}
 								<p class="filter-card__price">{{ i.product_price|float }} <span>₽</span></p>
+								{% else %}
+								<p class="filter-card__price">Цена по запросу</p>
+								{% endif %}
 								{% if i.instock %}
 								<p class="filter-card__instock">В наличии</p>
 								{% else %}

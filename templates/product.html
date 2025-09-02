@@ -71,25 +71,44 @@
 							</div>
 						</div>
 						<div class="product-inner__main--info">
+							{% if current_product.product_price %}
 							<p class="product-info__main--price">{{ current_product.product_price|float }} <span>₽</span></p>
+							{% else %}
+							<p class="product-info__main--price">Цена по запросу</p>
+							{% endif %}
 							{% if current_product.instock %}
 							<p class="filter-card__instock">В наличии</p>
 							{% else %}
 							<p class="filter-card__instock filter-card__instock--empty">Нет в наличии</p>
 							{% endif %}
+							<div class="filter-card__chars">
+								<p><span>Артикул</span> {{ current_product.article }}</p>
+								<p><span>Производитель</span> {{ current_product.brands.brand_title }}</p>
+								<p><span>Страна производства</span> {{ current_product.countries.country_title }}</p>
+							</div>
 							<a href="javascript:void(0);" class="product-info__main--order js-popup-link" data-popup="order">Заказать {{ i.subcategories.id }}</a>
 							<div class="product-inner_main--text">
-								<p><strong>Основные особенности</strong></p>
+								<p><strong>Краткое описание</strong></p>
 								{% autoescape off %}{{ current_product.product_description }}{% endautoescape %}
 							</div>
 						</div>
 					</div>
 					<div class="product-inner__additional">
+						<div class="product-inner__additional--tabs--sel">
+							<select class="filter-form-select filter-form--tabs" name="tab" data-select-style="primary" onchange="change_tab(this.value);">
+								<option value="tab-1" selected>Характеристики</option>
+								<option value="tab-2">Описание</option>
+								{% if current_product.product_file.all %}
+								<option value="tab-3">Загрузки</option>
+								{% endif %}
+								<option value="tab-4">Оплата и доставка</option>
+							</select>
+						</div>
 						<div class="product-inner__additional--tabs">
 							<a href="javascript:void(0);" attr-id="tab-1" class="product-inner__additional--activetab">Характеристики</a>
 							<a href="javascript:void(0);" attr-id="tab-2">Описание</a>
 							{% if current_product.product_file.all %}
-							<a href="javascript:void(0);" attr-id="tab-3">Документация</a>
+							<a href="javascript:void(0);" attr-id="tab-3">Загрузки</a>
 							{% endif %}
 							<a href="javascript:void(0);" attr-id="tab-4">Оплата и доставка</a>
 						</div>
@@ -128,6 +147,46 @@
 				</div>
 			</div>
 			{% include 'seo_faq.html' %}
+			{% if similar_products %}
+			<div class="product-inner__similar">
+				<h2>Похожие товары</h2>
+				<div class="product-inner__similar--items">
+					<div class="filter-form__items">
+						{% for i in similar_products %}
+						<div class="filter-form__items--card">
+							<a href="/products/{{ i.subcategories.categories.slug }}/{{ i.slug }}/" class="filter-card__image">
+								{% if i.image %}
+								<img src="{{ i.image.url }}" alt="{{ i.product_title }}">
+								{% else %}
+								<img src="{% static 'placeholder.png' %}" alt="{{ i.product_title }}">
+								{% endif %}
+							</a>
+							<a href="/products/{{ i.subcategories.categories.slug }}/{{ i.slug }}/"class="filter-card__url">{{ i.product_title }}</a>
+							<div class="filter-card__info">
+								{% if i.product_price %}
+								<p class="filter-card__price">{{ i.product_price|float }} <span>₽</span></p>
+								{% else %}
+								<p class="filter-card__price">Цена по запросу</p>
+								{% endif %}
+								{% if i.instock %}
+								<p class="filter-card__instock">В наличии</p>
+								{% else %}
+								<p class="filter-card__instock filter-card__instock--empty">Нет в наличии</p>
+								{% endif %}
+							</div>
+							<p class="filter-card__text">{{ i.article }}</p>
+							{% if not current_category %}
+							<p class="filter-card__text">{{ i.subcategories.categories.cat_title }}</p>
+							{% endif %}
+							<p class="filter-card__text">{{ i.countries.country_title }}</p>
+							<p class="filter-card__text filter-card__text--black">{{ i.brands.brand_title }}</p>
+							<a href="javascript:void(0);" class="filter-card__order js-popup-link" data-popup="order">Заказать</a>
+						</div>
+						{% endfor %}
+					</div>
+				</div>
+			</div>
+			{% endif %}
 		</div>
 	</section>
 {% endblock %}

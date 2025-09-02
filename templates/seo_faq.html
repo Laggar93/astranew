@@ -1,6 +1,6 @@
 			{% load static %}
 			{% if seo or faq %}
-			<div class="filter-additional">
+			<div class="filter-additional{% if is_card %} filter-additional__inside{% endif %}">
 				<div class="filter-additional__left">
 					<img src="{% static 'circle.png' %}" alt="FAQ">
 				</div>

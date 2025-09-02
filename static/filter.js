@@ -107,6 +107,7 @@ function add_params(name, value) {
 $(document).on('click', '.filter-form__pages a', function() { 
 	$('input[name="page"]').val($(this).attr('attr-page'));
 	add_params('page', $(this).attr('attr-page'));
+	document.title = document.title + ' | Страница ' + $(this).attr('attr-page');
 });
 
 $(document).on('click', '.filter-form__next a', function() { 
@@ -175,6 +176,20 @@ function update_params() {
 
 	if ($('.check__instock').is(":checked")) {
 		params.append('instock', 1);
+	}
+
+	var dynamic = [];
+
+	$('.check__params').each(function() {
+		if ($(this).is(":checked")) {
+			dynamic.push($(this).val());
+		}
+	});
+
+	console.log(dynamic);
+
+	if (dynamic.length > 0) {
+		params.append('params', dynamic);
 	}
 
 	window.history.pushState({}, '', url);
@@ -317,8 +332,9 @@ if (typeof Swiper !== "undefined") {
 }
 
 $('.product-inner__additional--tabs a').click(function() {
+	var a = $(this).attr('attr-id');
+	var b = $(this).html();
 	if (!$(this).hasClass('product-inner__additional--activetab')) {
-		var a = $(this).attr('attr-id');
 		$('.product-inner__additional--tabs a').removeClass('product-inner__additional--activetab');
 		$(this).addClass('product-inner__additional--activetab');
 		$('.product-inner__additional--item.product-inner__additional--activeitem').hide(0, function() {
@@ -328,4 +344,17 @@ $('.product-inner__additional--tabs a').click(function() {
 			$('.product-inner__additional--item[id="' + a + '"]').addClass('product-inner__additional--activeitem');
 		});
 	}
+	$('.select2-selection__rendered').html(b);
+	$('.filter-form--tabs option[value="' + a + '"]').prop('selected', true);
 });
+
+function change_tab(a) {
+	$('.product-inner__additional--tabs a').removeClass('product-inner__additional--activetab');
+	$('.product-inner__additional--tabs a[attr-id="' + a + '"]').addClass('product-inner__additional--activetab');
+	$('.product-inner__additional--item.product-inner__additional--activeitem').hide(0, function() {
+		$('.product-inner__additional--item.product-inner__additional--activeitem').removeClass('product-inner__additional--activeitem');
+	});
+	$('.product-inner__additional--item[id="' + a + '"]').show(0, function() {
+		$('.product-inner__additional--item[id="' + a + '"]').addClass('product-inner__additional--activeitem');
+	});
+}

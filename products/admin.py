@@ -5,7 +5,17 @@ from django.utils.html import format_html
 admin.site.unregister(auth.models.User)
 admin.site.unregister(auth.models.Group)
 from adminsortable2.admin import SortableAdminMixin, SortableInlineAdminMixin
-from .models import catalog_page, categories, subcategories, product, product_parameters, product_chars, brands, countries, faq_catalogue_page, faq_categories, product_slider, product_file
+from .models import catalog_page, categories, subcategories, product, product_parameters, product_chars, brands, countries, faq_catalogue_page, faq_categories, product_slider, product_file, filters, filters_parameters
+
+
+class filters_parameters_admin(admin.StackedInline):
+    model = filters_parameters
+    extra = 0
+
+
+class filters_admin(admin.ModelAdmin):
+    save_on_top = True
+    inlines = [filters_parameters_admin]
 
 
 class faq_catalogue_page_admin(SortableInlineAdminMixin, admin.StackedInline):
@@ -40,7 +50,6 @@ class product_file_admin(SortableInlineAdminMixin, admin.StackedInline):
     model = product_file
     ordering = ('order',)
     extra = 0
-
 
 class categories_admin(SortableAdminMixin, admin.ModelAdmin):
     model = categories
@@ -121,3 +130,4 @@ admin.site.register(subcategories, subcategories_admin)
 admin.site.register(product, product_admin)
 admin.site.register(brands, brands_admin)
 admin.site.register(countries, countries_admin)
+admin.site.register(filters, filters_admin)

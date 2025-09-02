@@ -8,6 +8,34 @@ from django.utils.functional import cached_property
 from django.core.validators import FileExtensionValidator
 
 
+class filters(models.Model):
+
+    filter_title = models.CharField('Наименование бренда', max_length=1000)
+
+    def __str__(self):
+        return self.filter_title
+
+    class Meta:
+        ordering = ['filter_title']
+        verbose_name = 'Фильтр'
+        verbose_name_plural = 'Фильтры'
+
+
+class filters_parameters(models.Model):
+
+    filters = models.ForeignKey(filters, on_delete=models.CASCADE, related_name='filters_parameters')
+
+    parameter_title = models.CharField('Значение', max_length=1000)
+
+    def __str__(self):
+        return self.filters.filter_title + ': ' + self.parameter_title
+
+    class Meta:
+        ordering = ['parameter_title']
+        verbose_name = 'Значение'
+        verbose_name_plural = 'Значения'
+
+
 class catalog_page(models.Model):
 
     title = models.CharField('Заголовок', max_length=1000)
@@ -181,7 +209,7 @@ class product(models.Model):
 
     product_title = models.CharField('Наименование продукта', max_length=1000)
     product_description = RichTextField('Описание', blank=True)
-    product_price = models.FloatField('Стоимость продукта за 1 шт', default=1, blank=True)
+    product_price = models.FloatField('Стоимость продукта за 1 шт', default=1, blank=True, null=True)
 
     image = models.ImageField('Изображение', upload_to=get_file_path, help_text=image_help_text, blank=True)
     image_detail_png2x = models.ImageField('Изображение', upload_to=get_file_path, blank=True)
@@ -198,6 +226,8 @@ class product(models.Model):
     article = models.CharField('Артикул', max_length=1000)
     brands = models.ForeignKey(brands, verbose_name='Бренд', on_delete=models.CASCADE, related_name='product_brands')
     countries = models.ForeignKey(countries, verbose_name='Страна', on_delete=models.CASCADE, related_name='product_country')
+
+    filters = models.ManyToManyField(filters_parameters, verbose_name='Значения фильтров', blank=True, related_name='products_filters')
 
     seo = RichTextField('Текст для SEO', blank=True)
 
@@ -358,7 +388,6 @@ class product_file(models.Model):
         ordering = ['order']
         verbose_name = 'Документ'
         verbose_name_plural = 'Документы'
-
 
 
 

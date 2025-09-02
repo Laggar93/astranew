@@ -9,6 +9,8 @@
     <meta property="og:url" content="Astra Technology | {{ page_title }}">
 {% endblock %}
 {% load static %}
+{% load length %}
+{% load inside %}
 {% block content %}
 	<div class="filter--loader">
 		<div class="filter--loader__content">
@@ -232,8 +234,41 @@
 								</div>
 							</div>
 						</div>
+						{% if filters %}
+						{% for i in filters.items %}
+						{% with m=forloop.counter %}
+						<div class="main_filter__dropdown">
+							<a href="javascript:void(0);">
+								<span>
+									{{ i.0 }}<span class="main_filter__amount{% if i.1|inside:params.6 > 0 %} main_filter__amount--active{% endif %}">{{ i.1|inside:params.6 }}</span>
+								</span>
+								<svg width="16" height="8" viewBox="0 0 16 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+									<path d="M0 7.50127C0 7.62779 0.0537072 7.75726 0.157962 7.85436C0.366472 8.04855 0.707671 8.04855 0.916181 7.85436L8.05292 1.2078L15.0854 7.75726C15.2939 7.95145 15.6351 7.95145 15.8436 7.75726C16.0521 7.56308 16.0521 7.24531 15.8436 7.05112L8.43203 0.145642C8.22352 -0.0485473 7.88232 -0.0485473 7.67381 0.145642L0.157962 7.14527C0.0505479 7.24531 0 7.37181 0 7.50127Z" fill="#969696"/>
+								</svg>
+							</a>
+							<div class="main_filter__dropdown--content{% if i.1|length > 5 %} main_filter__dropdown--content--scroll{% endif %}">
+								{% if i.1|length > 5 %}
+								<div class="main_filter__dropdown--bg"></div>
+								<div class="main_filter__dropdown--search">
+									<input type="text" class="inner--search" placeholder="Поиск">
+									<p class="inner--search__no">Ничего не найдено</p>
+								</div>
+								{% endif %}
+								<div class="main_filter__dropdown--wrapper">
+									{% for k in i.1 %}
+									<div class="main_filter__checkbox">
+										<input type="checkbox" name="params" value="{{ k.id }}" id="filter-{{ k.id }}" class="check__params js-toggle-check"{% if k.id in params.6 %} checked{% endif %}>
+										<label for="filter-{{ k.id }}">{{ k.parameter_title }}</label>
+									</div>
+									{% endfor %}
+								</div>
+							</div>
+						</div>
+						{% endwith %}
+						{% endfor %}
+						{% endif %}
 						<div class="main_filter__checkbox">
-							<input type="checkbox" name="instock" value="1" id="instock" class="check__instock js-toggle-check"{% if params.6 %} checked{% endif %}>
+							<input type="checkbox" name="instock" value="1" id="instock" class="check__instock js-toggle-check"{% if params.7 %} checked{% endif %}>
 							<label for="instock">В наличии</label>
 						</div>
 					</form>

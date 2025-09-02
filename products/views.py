@@ -79,11 +79,14 @@ def filter_products(data, category=None):
     mutable_querydict = replace_data(data, 'subcategory', mutable_querydict)
     mutable_querydict = replace_data(data, 'brand', mutable_querydict)
     mutable_querydict = replace_data(data, 'country', mutable_querydict)
+    mutable_querydict = replace_data(data, 'params', mutable_querydict)
 
     if category:
         all_products = product.objects.filter(subcategories__categories=category)
     else:
         all_products = product.objects.all()
+    
+    all_products_anyway = all_products
 
     filter = products_filter_form(mutable_querydict)
 
@@ -93,6 +96,7 @@ def filter_products(data, category=None):
     country = None
     price_from = None
     price_to = None
+    params = None
     instock = None
     amount = None
     sort = None
@@ -107,6 +111,7 @@ def filter_products(data, category=None):
         country = filter_cleaned['country']
         price_from = filter_cleaned['price_from']
         price_to = filter_cleaned['price_to']
+        params = filter_cleaned['params']
         instock = filter_cleaned['instock']
         amount = filter_cleaned['amount']
         sort = filter_cleaned['sort']
@@ -135,6 +140,10 @@ def filter_products(data, category=None):
                     all_products = all_products.filter(product_price__lte=price_to)
             all_products = all_products.filter(product_price__gte=price_from)
         
+        if params:
+            params = [int(part) for part in params.split(',')]
+            all_products = all_products.filter(filters__in=params).distinct()
+        
         if instock:
             all_products = all_products.filter(instock=True)
         
@@ -151,7 +160,7 @@ def filter_products(data, category=None):
         page = 1
     
     if amount == None:
-        amount = 6
+        amount = 36
     
     pages = math.ceil(all_products.count() / amount)
 
@@ -160,7 +169,7 @@ def filter_products(data, category=None):
     
     all_products = all_products[0:page*amount]
     
-    return all_products, [search, subcategory, brand, country, price_from, price_to, instock, amount, sort, page], pages
+    return all_products, [search, subcategory, brand, country, price_from, price_to, params, instock, amount, sort, page], pages, all_products_anyway
 
 
 def products_view(request, cat_slug=None):
@@ -180,6 +189,20 @@ def products_view(request, cat_slug=None):
 
     pages = filter_results[2]
     pages_array = list(range(1, pages+1))
+
+    filters = {}
+    products_all = filter_results[3]
+    for k in products_all.order_by('filters__filters__filter_title'):
+        for s in k.filters.all().order_by('filters__filter_title'):
+            k = None
+            try:
+                k = filters[s.filters.filter_title]
+            except:
+                filters[s.filters.filter_title] = [s]
+            if k:
+                if not s in k:
+                    k.append(s)
+    print(filters)
 
     content = {
         'categories': categories.objects.all(),
@@ -201,6 +224,7 @@ def products_view(request, cat_slug=None):
         'pages_array': pages_array,
         'seo': current_page.seo,
         'faq': faq,
+        'filters': filters,
     }
 
     return render(request, 'filter.html', content)
@@ -245,6 +269,7 @@ def products_item_view(request, cat_slug, product_slug):
         'faq': current_category.faq_categories.all(),
         'is_filter': True,
         'is_card': True,
+        'similar_products': product.objects.filter(subcategories__categories=current_category).exclude(id=current_product.id).order_by('?')[:8]
     }
 
     return render(request, 'product.html', content)
