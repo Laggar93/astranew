@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load float %}
+{% load static %}
 {% block seo %}
     <title>Astra Technology | {{ page_title }}</title>
     <meta name="description" content="{{ page_description }}">
@@ -34,9 +35,15 @@
 						<div class="product-inner__main--slider">
 							<div class="swiper banner-swiper">
 								<div class="swiper-wrapper">
+									{% if not current_product.image %}
+									<a class="swiper-slide" href="{% static 'placeholder.png' %}" data-fancybox="gallery">
+										<img src="{% static 'placeholder.png' %}" alt="{{ current_product.product_title }}">
+									</a>
+									{% else %}
 									<a class="swiper-slide" href="{{ current_product.image.url }}" data-fancybox="gallery">
 										<img src="{{ current_product.image.url }}" alt="{{ current_product.product_title }}">
 									</a>
+									{% endif %}
 									{% for i in current_product.product_slider.all %}
 									<a class="swiper-slide" href="{{ i.image.url }}" data-fancybox="gallery">
 										<img src="{{ i.image.url }}" alt="{{ i.alt }}">
@@ -46,9 +53,15 @@
 							</div>
 							<div class="swiper thumb-swiper">
 								<div class="swiper-wrapper">
+									{% if not current_product.image %}
+									<div class="swiper-slide">
+										<img src="{% static 'placeholder.png' %}" alt="{{ current_product.product_title }}">
+									</div>
+									{% else %}
 									<div class="swiper-slide">
 										<img src="{{ current_product.image.url }}" alt="{{ current_product.product_title }}">
 									</div>
+									{% endif %}
 									{% for i in current_product.product_slider.all %}
 									<div class="swiper-slide">
 										<img src="{{ i.image.url }}" alt="{{ i.alt }}">
@@ -75,7 +88,9 @@
 						<div class="product-inner__additional--tabs">
 							<a href="javascript:void(0);" attr-id="tab-1" class="product-inner__additional--activetab">Характеристики</a>
 							<a href="javascript:void(0);" attr-id="tab-2">Описание</a>
+							{% if current_product.product_file.all %}
 							<a href="javascript:void(0);" attr-id="tab-3">Документация</a>
+							{% endif %}
 							<a href="javascript:void(0);" attr-id="tab-4">Оплата и доставка</a>
 						</div>
 						<div class="product-inner__additional--content">
@@ -94,6 +109,7 @@
 									{% autoescape off %}{{ current_product.product_description }}{% endautoescape %}
 								</div>
 							</div>
+							{% if current_product.product_file.all %}
 							<div class="product-inner__additional--item" id="tab-3">
 								<div class="product-inner__additional--flex">
 									{% for item in current_product.product_file.all %}
@@ -101,6 +117,7 @@
 									{% endfor %}
 								</div>
 							</div>
+							{% endif %}
 							<div class="product-inner__additional--item" id="tab-4">
 								<div class="product-inner__additional--flex">
 									{% autoescape off %}{{ catalog_page.dostavka }}{% endautoescape %}
