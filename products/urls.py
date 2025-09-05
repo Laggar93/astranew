@@ -8,9 +8,10 @@ urlpatterns = [
     path('catalogue/<str:cat_slug>/<str:subcat_slug>/', views.subcategory_view, name='subcategory'),
     path('catalogue/<str:cat_slug>/<str:subcat_slug>/<str:product_slug>/', views.product_detail_view, name='product_detail'),
 	
-    path('products/', views.products_view, name='products_view'),
+    path('products/', views.catalog_view, name='catalog_view'),
 	path('products/<str:cat_slug>/', views.products_view, name='products_view'),
-	path('products_ajax/', views.products_ajax_view, name='products_ajax_view'),
+	path('products/<str:cat_slug>/<str:subcat_slug>/', views.products_view, name='products_view'),
 	path('products_ajax/<str:cat_slug>/', views.products_ajax_view, name='products_ajax_view'),
-	path('products/<str:cat_slug>/<str:product_slug>/', views.products_item_view, name='products_item_view'),
+	path('products_ajax/<str:cat_slug>/<str:subcat_slug>/', views.products_ajax_view, name='products_ajax_view'),
+	path('products/<str:cat_slug>/<str:subcat_slug>/<str:product_slug>/', views.products_item_view, name='products_item_view'),
 ]

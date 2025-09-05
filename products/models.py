@@ -159,6 +159,8 @@ class subcategories(models.Model):
 
     __original_image = None
 
+    seo = RichTextField('Текст для SEO', blank=True)
+
     def __init__(self, *args, **kwargs):
         super(subcategories, self).__init__(*args, **kwargs)
         self.__original_image = self.image
@@ -322,6 +324,24 @@ class faq_categories(models.Model):
     order = models.IntegerField('Порядок')
 
     categories = models.ForeignKey(categories, on_delete=models.CASCADE, related_name='faq_categories')
+
+    question = models.CharField('Вопрос', max_length=1000)
+    answer = RichTextField('Ответ')
+
+    def __str__(self):
+        return str(self.id)
+
+    class Meta:
+        ordering = ['order']
+        verbose_name = 'Вопрос'
+        verbose_name_plural = 'Вопросы'
+
+
+class faq_subcategories(models.Model):
+
+    order = models.IntegerField('Порядок')
+
+    subcategories = models.ForeignKey(subcategories, on_delete=models.CASCADE, related_name='faq_subcategories')
 
     question = models.CharField('Вопрос', max_length=1000)
     answer = RichTextField('Ответ')

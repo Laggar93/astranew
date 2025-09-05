@@ -99,15 +99,48 @@ function add_params(name, value) {
 	if (name == 'amount') {
 		params.delete('page');
 	}
+	if (name == 'page' && value == '1') {
+		params.delete('page');
+	}
 	url.search = params.toString();
 	window.history.pushState({}, '', url);
 	$('.main-filter__js').submit();
 }
 
-$(document).on('click', '.filter-form__pages a', function() { 
+$(document).ready(function() {
+
+})
+
+$(document).on('click', '.filter-form__pages a', function(e) {
+
+	e.preventDefault();
+
 	$('input[name="page"]').val($(this).attr('attr-page'));
 	add_params('page', $(this).attr('attr-page'));
-	document.title = document.title + ' | Страница ' + $(this).attr('attr-page');
+
+	var a = document.title;
+	var b = a.indexOf(' - страница');
+	var c = $('meta[name="description"]').attr('content');
+	var d = c.indexOf(' - страница');
+
+	if (b > 0) {
+		document.title = a.slice(0, b);
+		$('meta[property="og:title"]').attr('content', a.slice(0, b));
+		$('.filter-additional').removeClass('seo_faq_hidden');
+	} else {
+		document.title = a + ' - страница ' + $(this).attr('attr-page');
+		$('meta[property="og:title"]').attr('content', a + ' - страница ' + $(this).attr('attr-page'));
+		$('.filter-additional').addClass('seo_faq_hidden');
+	}
+
+	if (d > 0) {
+		$('meta[name="description"]').attr('content', c.slice(0, d));
+		$('meta[property="og:description"]').attr('content', c.slice(0, d));
+	} else {
+		$('meta[name="description"]').attr('content', c + ' - страница ' + $(this).attr('attr-page'));
+		$('meta[property="og:description"]').attr('content', c + ' - страница ' + $(this).attr('attr-page'));
+	}
+
 });
 
 $(document).on('click', '.filter-form__next a', function() { 

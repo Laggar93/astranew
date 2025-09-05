@@ -10,6 +10,7 @@ def catalog_view(request):
     content = {
         'catalog_page': catalog_page.objects.first(),
         'categories': categories.objects.all(),
+        'is_new': True,
     }
 
     return render(request, 'catalog.html', content)
@@ -72,26 +73,24 @@ def replace_data(data, name, result):
     return result
 
 
-def filter_products(data, category=None):
+def filter_products(data, category, subcategory=None):
 
     mutable_querydict = data.copy()
     
-    mutable_querydict = replace_data(data, 'subcategory', mutable_querydict)
     mutable_querydict = replace_data(data, 'brand', mutable_querydict)
     mutable_querydict = replace_data(data, 'country', mutable_querydict)
     mutable_querydict = replace_data(data, 'params', mutable_querydict)
 
-    if category:
-        all_products = product.objects.filter(subcategories__categories=category)
+    if subcategory:
+        all_products = product.objects.filter(subcategories__categories=category, subcategories=subcategory)
     else:
-        all_products = product.objects.all()
+        all_products = product.objects.filter(subcategories__categories=category)
     
     all_products_anyway = all_products
 
     filter = products_filter_form(mutable_querydict)
 
     search = None
-    subcategory = None
     brand = None
     country = None
     price_from = None
@@ -106,7 +105,6 @@ def filter_products(data, category=None):
 
         filter_cleaned = filter.cleaned_data
         search = filter_cleaned['search']
-        subcategory = filter_cleaned['subcategory']
         brand = filter_cleaned['brand']
         country = filter_cleaned['country']
         price_from = filter_cleaned['price_from']
@@ -116,10 +114,6 @@ def filter_products(data, category=None):
         amount = filter_cleaned['amount']
         sort = filter_cleaned['sort']
         page = filter_cleaned['page']
-        
-        if subcategory:
-            subcategory = [int(part) for part in subcategory.split(',')]
-            all_products = all_products.filter(subcategories__in=subcategory).distinct()
         
         if brand:
             brand = [int(part) for part in brand.split(',')]
@@ -172,20 +166,28 @@ def filter_products(data, category=None):
     return all_products, [search, subcategory, brand, country, price_from, price_to, params, instock, amount, sort, page], pages, all_products_anyway
 
 
-def products_view(request, cat_slug=None):
-
-    if cat_slug:
-        current_category = get_object_or_404(categories, slug=cat_slug)
-        current_page = current_category
-        current_subcategories = subcategories.objects.filter(categories=current_category).exclude(products_subcategory=None).order_by('subcategory_title')
-        faq = current_page.faq_categories.all()
-    else:
-        current_category = None
-        current_page = catalog_page.objects.first()
-        current_subcategories = subcategories.objects.exclude(products_subcategory=None).order_by('subcategory_title')
-        faq = current_page.faq_catalog_page.all()
+def products_view(request, cat_slug, subcat_slug=None):
     
-    filter_results = filter_products(request.GET, current_category)
+    current_category = get_object_or_404(categories, slug=cat_slug)
+
+    if subcat_slug:
+        current_subcategory = get_object_or_404(subcategories, slug=subcat_slug, categories=current_category)
+        current_page = current_subcategory
+        current_brands = brands.objects.filter(product_brands__subcategories=current_subcategory).distinct()
+        current_countries = countries.objects.filter(product_country__subcategories=current_subcategory).distinct()
+    else:
+        current_subcategory = None
+        current_page = current_category
+        current_brands = brands.objects.filter(product_brands__subcategories__categories=current_category).distinct()
+        current_countries = countries.objects.filter(product_country__subcategories__categories=current_subcategory).distinct()
+    
+    current_subcategories = subcategories.objects.filter(categories=current_category).exclude(products_subcategory=None).order_by('subcategory_title')
+    if subcat_slug:
+        faq = current_page.faq_subcategories.all()
+    else:
+        faq = current_page.faq_categories.all()
+    
+    filter_results = filter_products(request.GET, current_category, current_subcategory)
 
     pages = filter_results[2]
     pages_array = list(range(1, pages+1))
@@ -202,22 +204,34 @@ def products_view(request, cat_slug=None):
             if k:
                 if not s in k:
                     k.append(s)
-    print(filters)
+    
+    page_val = filter_results[1][10]
+    page_add = ''
+    if page_val != 1:
+        page_add = ' - страница ' + str(page_val)
+        hide_seo_faq = True
+    else:
+        hide_seo_faq = False
+    
+    pars = {}
+    
+    for k in request.GET.items():
+        if k[0] != 'page':
+            pars[k[0]] = k[1].replace(',', '%2C')
 
     content = {
-        'categories': categories.objects.all(),
+        'subcategories': current_subcategories,
         'is_filter': True,
         'current_category': current_category,
-        'page_title': current_page.title,
-        'page_description': current_page.description,
+        'current_subcategory': current_subcategory,
+        'page_title': current_page.title + page_add,
+        'page_description': current_page.description + page_add,
         'page_keywords': current_page.keywords,
         'catalog_page_name': catalog_page.objects.first().section_title,
-        'subcategories': current_subcategories,
-        'brands': brands.objects.all(),
-        'countries': countries.objects.all(),
+        'brands': current_brands,
+        'countries': current_countries,
         'products': filter_results[0],
         'params': filter_results[1],
-        'subcategory_len': len(filter_results[1][1]),
         'brand_len': len(filter_results[1][2]),
         'country_len': len(filter_results[1][3]),
         'pages': pages,
@@ -225,51 +239,65 @@ def products_view(request, cat_slug=None):
         'seo': current_page.seo,
         'faq': faq,
         'filters': filters,
+        'hide_seo_faq': hide_seo_faq,
+        'pars': pars,
+        'page_val': page_val,
     }
 
     return render(request, 'filter.html', content)
 
 
-def products_ajax_view(request, cat_slug=None):
+def products_ajax_view(request, cat_slug, subcat_slug=None):
+    
+    current_category = categories.objects.filter(slug=cat_slug).first()
 
     try:
-        current_category = categories.objects.filter(slug=cat_slug).first()
+        current_subcategory = subcategories.objects.filter(categories=current_category, slug=subcat_slug).first()
     except:
-        current_category = None
+        current_subcategory = None
     
-    filter_results = filter_products(request.POST, current_category)
+    filter_results = filter_products(request.POST, current_category, current_subcategory)
 
     pages = filter_results[2]
     pages_array = list(range(1, pages+1))
+    
+    pars = {}
+    
+    for k in request.POST.items():
+        if k[0] != 'page' and k[1] != '' and k[0] != 'csrfmiddlewaretoken':
+            pars[k[0]] = k[1].replace(',', '%2C')
 
     content = {
         'products': filter_results[0],
         'params': filter_results[1],
         'pages': pages,
         'pages_array': pages_array,
+        'pars': pars,
+        'current_subcategory': current_subcategory,
     }
 
     return render(request, 'ajax.html', content)
 
 
-def products_item_view(request, cat_slug, product_slug):
+def products_item_view(request, cat_slug, subcat_slug, product_slug):
 
     current_category = get_object_or_404(categories, slug=cat_slug)
-    current_product = get_object_or_404(product, subcategories__categories=current_category, slug=product_slug)
+    current_subcategory = get_object_or_404(subcategories, categories=current_category, slug=subcat_slug)
+    current_product = get_object_or_404(product, subcategories__categories=current_category, subcategories=current_subcategory, slug=product_slug)
 
     content = {
         'catalog_page': catalog_page.objects.first(),
         'current_category': current_category,
+        'current_subcategory': current_subcategory,
         'current_product': current_product,
-        'current_category': current_category,
         'page_title': current_product.title,
         'page_description': current_product.description,
         'page_keywords': current_product.keywords,
         'seo': current_product.seo,
-        'faq': current_category.faq_categories.all(),
+        'faq': current_subcategory.faq_subcategories.all(),
         'is_filter': True,
         'is_card': True,
-        'similar_products': product.objects.filter(subcategories__categories=current_category).exclude(id=current_product.id).order_by('?')[:8]
+        'similar_products': product.objects.filter(subcategories=current_subcategory).exclude(id=current_product.id).order_by('?')[:8]
     }
 
     return render(request, 'product.html', content)

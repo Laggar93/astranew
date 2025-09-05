@@ -1,36 +1,37 @@
 					{% load float %}
+					{% load replace_ajax %}
 					{% load static %}
 					{% if products %}
 					<div class="filter-form__top">
 						<div class="filter-form__amount">
 							<p>Кол-во товаров:</p>
 							<select class="filter-form-select filter-form__amount--input" name="amount" data-select-style="primary" onchange="add_params('amount',this.value);">
-								<option value="6"{% if not params.7 or params.7 == 36 %} selected{% endif %}>36 шт.</option>
-								<option value="12"{% if params.7 == 72 %} selected{% endif %}>72 шт.</option>
-								<option value="18"{% if params.7 == 108 %} selected{% endif %}>108 шт.</option>
+								<option value="36"{% if not params.8 or params.8 == 36 %} selected{% endif %}>36 шт.</option>
+								<option value="72"{% if params.8 == 72 %} selected{% endif %}>72 шт.</option>
+								<option value="108"{% if params.8 == 108 %} selected{% endif %}>108 шт.</option>
 							</select>
 						</div>
 						<div class="filter-form__sort">
 							<p>Сортировка:</p>
 							<select class="filter-form-select filter-form__sort--input" name="sort" data-select-style="primary" onchange="add_params('sort',this.value);">
-								<option value="name"{% if not params.8 or params.8 == 'name' %} selected{% endif %}>По названию</option>
-								<option value="new"{% if params.8 == 'new' %} selected{% endif %}>Новые</option>
-								<option value="price_asc"{% if params.8 == 'price_asc' %} selected{% endif %}>Дешевле</option>
-								<option value="price_desc"{% if params.8 == 'price_desc' %} selected{% endif %}>Дороже</option>
+								<option value="name"{% if not params.9 or params.9 == 'name' %} selected{% endif %}>По названию</option>
+								<option value="new"{% if params.9 == 'new' %} selected{% endif %}>Новые</option>
+								<option value="price_asc"{% if params.9 == 'price_asc' %} selected{% endif %}>Дешевле</option>
+								<option value="price_desc"{% if params.9 == 'price_desc' %} selected{% endif %}>Дороже</option>
 							</select>
 						</div>
 					</div>
 					<div class="filter-form__items">
 						{% for i in products %}
 						<div class="filter-form__items--card">
-							<a href="/products/{{ i.subcategories.categories.slug }}/{{ i.slug }}/" class="filter-card__image">
+							<a href="/products/{{ i.subcategories.categories.slug }}/{{ i.subcategories.slug }}/{{ i.slug }}/" class="filter-card__image">
 								{% if i.image %}
 								<img src="{{ i.image.url }}" alt="{{ i.product_title }}">
 								{% else %}
 								<img src="{% static 'placeholder.png' %}" alt="{{ i.product_title }}">
 								{% endif %}
 							</a>
-							<a href="/products/{{ i.subcategories.categories.slug }}/{{ i.slug }}/"class="filter-card__url">{{ i.product_title }}</a>
+							<a href="/products/{{ i.subcategories.categories.slug }}/{{ i.subcategories.slug }}/{{ i.slug }}/"class="filter-card__url">{{ i.product_title }}</a>
 							<div class="filter-card__info">
 								{% if i.product_price %}
 								<p class="filter-card__price">{{ i.product_price|float }} <span>₽</span></p>
@@ -44,8 +45,8 @@
 								{% endif %}
 							</div>
 							<p class="filter-card__text">{{ i.article }}</p>
-							{% if not current_category %}
-							<p class="filter-card__text">{{ i.subcategories.categories.cat_title }}</p>
+							{% if not current_subcategory %}
+							<p class="filter-card__text">{{ i.subcategories.subcategory_title }}</p>
 							{% endif %}
 							<p class="filter-card__text">{{ i.countries.country_title }}</p>
 							<p class="filter-card__text filter-card__text--black">{{ i.brands.brand_title }}</p>
@@ -53,17 +54,17 @@
 						</div>
 						{% endfor %}
 					</div>
-					{% if pages != 1 %}
+					{% if pages != 1%}
 					<div class="filter-form__bottom">
-						<input type="hidden" name="page" value="{{ params.9 }}">
+						<input type="hidden" name="page" value="{{ params.10 }}">
 						<div class="filter-form__pages">
 							{% for i in pages_array %}
-							<a href="javascript:void(0)" attr-page="{{ i }}"{% if i == params.9 %} class="filter-form__pages--active"{% endif %}>{{ i }}</a>
+							<a href="{{ request.path|replace_ajax }}{% for k in pars.items %}?{{ k.0 }}={{ k.1 }}{% endfor %}{% if i != 1 %}&page={{ i }}{% endif %}" attr-page="{{ i }}"{% if i == params.10 %} class="filter-form__pages--active"{% endif %}>{{ i }}</a>
 							{% endfor %}
 						</div>
-						{% if pages != params.9 %}
+						{% if pages != params.10 %}
 						<div class="filter-form__next">
-							<a href="javascript:void(0)" attr-next="{{ params.9|add:"1" }}">Показать еще</a>
+							<a href="javascript:void(0)" attr-next="{{ params.10|add:"1" }}">Показать еще</a>
 						</div>
 						{% endif %}
 					</div>

@@ -72,48 +72,54 @@
                 <li class="breadcrumbs-item">
                     <a href="{% url 'main_page' %}" class="breadcrumbs-item__link">Главная</a>
                 </li>
-				{% if not current_category %}
                 <li class="breadcrumbs-item">
-                    {{ catalog_page_name }}
+                    <a href="/products/" class="breadcrumbs-item__link">{{ catalog_page_name }}</a>
+                </li>
+				{% if not current_subcategory %}
+                <li class="breadcrumbs-item">
+                    {{ current_category.cat_title }}
                 </li>
 				{% else %}
                 <li class="breadcrumbs-item">
-                    <a href="{% url 'products_view' %}" class="breadcrumbs-item__link">{{ catalog_page_name }}</a>
+                    <a href="/products/{{ current_category.slug }}/" class="breadcrumbs-item__link">{{ current_category.cat_title }}</a>
                 </li>
                 <li class="breadcrumbs-item">
-                    {{ current_category.cat_title }}
+                    {{ current_subcategory.subcategory_title }}
                 </li>
 				{% endif %}
             </ul>
             <div class="page-content page-content__filter">
-				{% if not current_category %}
-                <h1>{{ catalog_page_name }}</h1>
-				{% else %}
+				{% if not current_subcategory %}
                 <p class="filter_title">{{ catalog_page_name }}</p>
                 <h1 class="v-hidden">{{ current_category.cat_title }}</h1>
+				{% else %}
+                <p class="filter_title">{{ catalog_page_name }}</p>
+                <h1 class="v-hidden">{{ current_subcategory.subcategory_title }}</h1>
 				{% endif %}
+				{% if products %}
 				<ul class="filter-tabs">
 					<li>
-						<a href="/products/"{% if not current_category %} class="filter-tabs__active"{% endif %}>Все товары</a>
+						<a href="/products/{{ current_category.slug }}/"{% if not current_subcategory %} class="filter-tabs__active"{% endif %}>Все товары</a>
 					</li>
-					{% for i in categories %}
+					{% for i in subcategories %}
 					<li>
-						<a href="/products/{{ i.slug }}/"{% if current_category == i %} class="filter-tabs__active"{% endif %}>{{ i.cat_title }}</a>
+						<a href="/products/{{ current_category.slug }}/{{ i.slug }}/"{% if current_subcategory == i %} class="filter-tabs__active"{% endif %}>{{ i.subcategory_title }}</a>
 					</li>
 					{% endfor %}
 				</ul>
 				<div class="filter-form__category">
 					<select class="filter-form-select" data-select-style="primary" onchange="if (this.value) window.location.href=this.value">
-						<option value="/products/"{% if not current_category %} selected{% endif %}>Все товары</option>
-						{% for i in categories %}
-						<option value="/products/{{ i.slug }}/"{% if current_category == i %} selected{% endif %}>{{ i.cat_title }}</option>
+						<option value="/products/{{ current_category.slug }}/"{% if not current_subcategory %} selected{% endif %}>Все товары</option>
+						{% for i in subcategories %}
+						<option value="/products/{{ current_category.slug }}/{{ i.slug }}/"{% if current_subcategory == i %} selected{% endif %}>{{ i.subcategory_title }}</option>
 						{% endfor %}
 					</select>
 				</div>
+				{% endif %}
             </div>
 			<div class="main-filter">
 				<div class="main-filter__form">
-					<form action="/products_ajax/{% if current_category %}{{ current_category.slug }}/{% endif %}" method="POST" class="main-filter__js">
+					<form action="/products_ajax/{{ current_category.slug }}/{% if current_subcategory %}{{ current_subcategory.slug }}/{% endif %}" method="POST" class="main-filter__js">
 						{% csrf_token %}
 						<div class="main_filter__search">
 							<input type="text" name="search" placeholder="Название товара" class="main_filter__search--input" value="{{ params.0 }}">
@@ -123,157 +129,130 @@
 								</svg>
 							</a>
 						</div>
-						{% if subcategories %}
-						<div class="main_filter__dropdown">
-							<a href="javascript:void(0);">
-								<span>
-									Подкатегория<span class="main_filter__amount{% if subcategory_len > 0 %} main_filter__amount--active{% endif %}">{{ subcategory_len }}</span>
-								</span>
-								<svg width="16" height="8" viewBox="0 0 16 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-									<path d="M0 7.50127C0 7.62779 0.0537072 7.75726 0.157962 7.85436C0.366472 8.04855 0.707671 8.04855 0.916181 7.85436L8.05292 1.2078L15.0854 7.75726C15.2939 7.95145 15.6351 7.95145 15.8436 7.75726C16.0521 7.56308 16.0521 7.24531 15.8436 7.05112L8.43203 0.145642C8.22352 -0.0485473 7.88232 -0.0485473 7.67381 0.145642L0.157962 7.14527C0.0505479 7.24531 0 7.37181 0 7.50127Z" fill="#969696"/>
-								</svg>
-							</a>
-							<div class="main_filter__dropdown--content{% if subcategories.count > 5 %} main_filter__dropdown--content--scroll{% endif %}">
-								{% if subcategories.count > 5 %}
-								<div class="main_filter__dropdown--bg"></div>
-								<div class="main_filter__dropdown--search">
-									<input type="text" class="inner--search" placeholder="Поиск">
-									<p class="inner--search__no">Ничего не найдено</p>
-								</div>
-								{% endif %}
-								<div class="main_filter__dropdown--wrapper">
-									{% for i in subcategories %}
-									<div class="main_filter__checkbox">
-										<input type="checkbox" name="subcategory" value="{{ i.id }}" id="subcategory-{{ i.id }}" class="check__subcategory js-toggle-check"{% if i.id in params.1 %} checked{% endif %}>
-										<label for="subcategory-{{ i.id }}">{{ i.subcategory_title }}</label>
+						<div class="main-filter___wrapper">
+							{% if brands %}
+							<div class="main_filter__dropdown">
+								<a href="javascript:void(0);">
+									<span>
+										Бренд<span class="main_filter__amount{% if brand_len > 0 %} main_filter__amount--active{% endif %}">{{ brand_len }}</span>
+									</span>
+									<svg width="16" height="8" viewBox="0 0 16 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+										<path d="M0 7.50127C0 7.62779 0.0537072 7.75726 0.157962 7.85436C0.366472 8.04855 0.707671 8.04855 0.916181 7.85436L8.05292 1.2078L15.0854 7.75726C15.2939 7.95145 15.6351 7.95145 15.8436 7.75726C16.0521 7.56308 16.0521 7.24531 15.8436 7.05112L8.43203 0.145642C8.22352 -0.0485473 7.88232 -0.0485473 7.67381 0.145642L0.157962 7.14527C0.0505479 7.24531 0 7.37181 0 7.50127Z" fill="#969696"/>
+									</svg>
+								</a>
+								<div class="main_filter__dropdown--content{% if brands.count > 5 %} main_filter__dropdown--content--scroll{% endif %}">
+									{% if brands.count > 5 %}
+									<div class="main_filter__dropdown--bg"></div>
+									<div class="main_filter__dropdown--search">
+										<input type="text" class="inner--search" placeholder="Поиск">
+										<p class="inner--search__no">Ничего не найдено</p>
 									</div>
-									{% endfor %}
-								</div>
-							</div>
-						</div>
-						{% endif %}
-						{% if brands %}
-						<div class="main_filter__dropdown">
-							<a href="javascript:void(0);">
-								<span>
-									Бренд<span class="main_filter__amount{% if brand_len > 0 %} main_filter__amount--active{% endif %}">{{ brand_len }}</span>
-								</span>
-								<svg width="16" height="8" viewBox="0 0 16 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-									<path d="M0 7.50127C0 7.62779 0.0537072 7.75726 0.157962 7.85436C0.366472 8.04855 0.707671 8.04855 0.916181 7.85436L8.05292 1.2078L15.0854 7.75726C15.2939 7.95145 15.6351 7.95145 15.8436 7.75726C16.0521 7.56308 16.0521 7.24531 15.8436 7.05112L8.43203 0.145642C8.22352 -0.0485473 7.88232 -0.0485473 7.67381 0.145642L0.157962 7.14527C0.0505479 7.24531 0 7.37181 0 7.50127Z" fill="#969696"/>
-								</svg>
-							</a>
-							<div class="main_filter__dropdown--content{% if brands.count > 5 %} main_filter__dropdown--content--scroll{% endif %}">
-								{% if brands.count > 5 %}
-								<div class="main_filter__dropdown--bg"></div>
-								<div class="main_filter__dropdown--search">
-									<input type="text" class="inner--search" placeholder="Поиск">
-									<p class="inner--search__no">Ничего не найдено</p>
-								</div>
-								{% endif %}
-								<div class="main_filter__dropdown--wrapper">
-									{% for i in brands %}
-									<div class="main_filter__checkbox">
-										<input type="checkbox" name="brand" value="{{ i.id }}" id="brand-{{ i.id }}" class="check__brand js-toggle-check"{% if i.id in params.2 %} checked{% endif %}>
-										<label for="brand-{{ i.id }}">{{ i.brand_title }}</label>
-									</div>
-									{% endfor %}
-								</div>
-							</div>
-						</div>
-						{% endif %}
-						{% if countries %}
-						<div class="main_filter__dropdown">
-							<a href="javascript:void(0);">
-								<span>
-									Страна<span class="main_filter__amount{% if country_len > 0 %} main_filter__amount--active{% endif %}">{{ country_len }}</span>
-								</span>
-								<svg width="16" height="8" viewBox="0 0 16 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-									<path d="M0 7.50127C0 7.62779 0.0537072 7.75726 0.157962 7.85436C0.366472 8.04855 0.707671 8.04855 0.916181 7.85436L8.05292 1.2078L15.0854 7.75726C15.2939 7.95145 15.6351 7.95145 15.8436 7.75726C16.0521 7.56308 16.0521 7.24531 15.8436 7.05112L8.43203 0.145642C8.22352 -0.0485473 7.88232 -0.0485473 7.67381 0.145642L0.157962 7.14527C0.0505479 7.24531 0 7.37181 0 7.50127Z" fill="#969696"/>
-								</svg>
-							</a>
-							<div class="main_filter__dropdown--content{% if countries.count > 5 %} main_filter__dropdown--content--scroll{% endif %}">
-								{% if countries.count > 5 %}
-								<div class="main_filter__dropdown--bg"></div>
-								<div class="main_filter__dropdown--search">
-									<input type="text" class="inner--search" placeholder="Поиск">
-									<p class="inner--search__no">Ничего не найдено</p>
-								</div>
-								{% endif %}
-								<div class="main_filter__dropdown--wrapper">
-									{% for i in countries %}
-									<div class="main_filter__checkbox">
-										<input type="checkbox" name="country" value="{{ i.id }}" id="country-{{ i.id }}" class="check__country js-toggle-check"{% if i.id in params.3 %} checked{% endif %}>
-										<label for="country-{{ i.id }}">{{ i.country_title }}</label>
-									</div>
-									{% endfor %}
-								</div>
-							</div>
-						</div>
-						{% endif %}
-						<div class="main_filter__dropdown{% if params.4 or params.5 %} main_filter__dropdown--active{% endif %}">
-							<a href="javascript:void(0);">
-								<span>Стоимость</span>
-								<svg width="16" height="8" viewBox="0 0 16 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-									<path d="M0 7.50127C0 7.62779 0.0537072 7.75726 0.157962 7.85436C0.366472 8.04855 0.707671 8.04855 0.916181 7.85436L8.05292 1.2078L15.0854 7.75726C15.2939 7.95145 15.6351 7.95145 15.8436 7.75726C16.0521 7.56308 16.0521 7.24531 15.8436 7.05112L8.43203 0.145642C8.22352 -0.0485473 7.88232 -0.0485473 7.67381 0.145642L0.157962 7.14527C0.0505479 7.24531 0 7.37181 0 7.50127Z" fill="#969696"/>
-								</svg>
-							</a>
-							<div class="main_filter__dropdown--content">
-								<div class="main_filter__price">
-									<div class="main_filter__price--input">
-										<input type="number" name="price_from" placeholder="от" class="price_from js-toggle-price" value="{{ params.4 }}">
-										<span>
-											₽
-										</span>
-									</div>
-									<div class="main_filter__price--input">
-										<input type="number" name="price_to" placeholder="до" class="price_to js-toggle-price" value="{{ params.5 }}">
-										<span>
-											₽
-										</span>
+									{% endif %}
+									<div class="main_filter__dropdown--wrapper">
+										{% for i in brands %}
+										<div class="main_filter__checkbox">
+											<input type="checkbox" name="brand" value="{{ i.id }}" id="brand-{{ i.id }}" class="check__brand js-toggle-check"{% if i.id in params.2 %} checked{% endif %}>
+											<label for="brand-{{ i.id }}">{{ i.brand_title }}</label>
+										</div>
+										{% endfor %}
 									</div>
 								</div>
 							</div>
-						</div>
-						{% if filters %}
-						{% for i in filters.items %}
-						{% with m=forloop.counter %}
-						<div class="main_filter__dropdown">
-							<a href="javascript:void(0);">
-								<span>
-									{{ i.0 }}<span class="main_filter__amount{% if i.1|inside:params.6 > 0 %} main_filter__amount--active{% endif %}">{{ i.1|inside:params.6 }}</span>
-								</span>
-								<svg width="16" height="8" viewBox="0 0 16 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-									<path d="M0 7.50127C0 7.62779 0.0537072 7.75726 0.157962 7.85436C0.366472 8.04855 0.707671 8.04855 0.916181 7.85436L8.05292 1.2078L15.0854 7.75726C15.2939 7.95145 15.6351 7.95145 15.8436 7.75726C16.0521 7.56308 16.0521 7.24531 15.8436 7.05112L8.43203 0.145642C8.22352 -0.0485473 7.88232 -0.0485473 7.67381 0.145642L0.157962 7.14527C0.0505479 7.24531 0 7.37181 0 7.50127Z" fill="#969696"/>
-								</svg>
-							</a>
-							<div class="main_filter__dropdown--content{% if i.1|length > 5 %} main_filter__dropdown--content--scroll{% endif %}">
-								{% if i.1|length > 5 %}
-								<div class="main_filter__dropdown--bg"></div>
-								<div class="main_filter__dropdown--search">
-									<input type="text" class="inner--search" placeholder="Поиск">
-									<p class="inner--search__no">Ничего не найдено</p>
-								</div>
-								{% endif %}
-								<div class="main_filter__dropdown--wrapper">
-									{% for k in i.1 %}
-									<div class="main_filter__checkbox">
-										<input type="checkbox" name="params" value="{{ k.id }}" id="filter-{{ k.id }}" class="check__params js-toggle-check"{% if k.id in params.6 %} checked{% endif %}>
-										<label for="filter-{{ k.id }}">{{ k.parameter_title }}</label>
+							{% endif %}
+							{% if countries %}
+							<div class="main_filter__dropdown">
+								<a href="javascript:void(0);">
+									<span>
+										Страна<span class="main_filter__amount{% if country_len > 0 %} main_filter__amount--active{% endif %}">{{ country_len }}</span>
+									</span>
+									<svg width="16" height="8" viewBox="0 0 16 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+										<path d="M0 7.50127C0 7.62779 0.0537072 7.75726 0.157962 7.85436C0.366472 8.04855 0.707671 8.04855 0.916181 7.85436L8.05292 1.2078L15.0854 7.75726C15.2939 7.95145 15.6351 7.95145 15.8436 7.75726C16.0521 7.56308 16.0521 7.24531 15.8436 7.05112L8.43203 0.145642C8.22352 -0.0485473 7.88232 -0.0485473 7.67381 0.145642L0.157962 7.14527C0.0505479 7.24531 0 7.37181 0 7.50127Z" fill="#969696"/>
+									</svg>
+								</a>
+								<div class="main_filter__dropdown--content{% if countries.count > 5 %} main_filter__dropdown--content--scroll{% endif %}">
+									{% if countries.count > 5 %}
+									<div class="main_filter__dropdown--bg"></div>
+									<div class="main_filter__dropdown--search">
+										<input type="text" class="inner--search" placeholder="Поиск">
+										<p class="inner--search__no">Ничего не найдено</p>
 									</div>
-									{% endfor %}
+									{% endif %}
+									<div class="main_filter__dropdown--wrapper">
+										{% for i in countries %}
+										<div class="main_filter__checkbox">
+											<input type="checkbox" name="country" value="{{ i.id }}" id="country-{{ i.id }}" class="check__country js-toggle-check"{% if i.id in params.3 %} checked{% endif %}>
+											<label for="country-{{ i.id }}">{{ i.country_title }}</label>
+										</div>
+										{% endfor %}
+									</div>
 								</div>
 							</div>
-						</div>
-						{% endwith %}
-						{% endfor %}
-						{% endif %}
-						<div class="main_filter__checkbox">
-							<input type="checkbox" name="instock" value="1" id="instock" class="check__instock js-toggle-check"{% if params.7 %} checked{% endif %}>
-							<label for="instock">В наличии</label>
+							{% endif %}
+							<div class="main_filter__dropdown{% if params.4 or params.5 %} main_filter__dropdown--active{% endif %}">
+								<a href="javascript:void(0);">
+									<span>Стоимость</span>
+									<svg width="16" height="8" viewBox="0 0 16 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+										<path d="M0 7.50127C0 7.62779 0.0537072 7.75726 0.157962 7.85436C0.366472 8.04855 0.707671 8.04855 0.916181 7.85436L8.05292 1.2078L15.0854 7.75726C15.2939 7.95145 15.6351 7.95145 15.8436 7.75726C16.0521 7.56308 16.0521 7.24531 15.8436 7.05112L8.43203 0.145642C8.22352 -0.0485473 7.88232 -0.0485473 7.67381 0.145642L0.157962 7.14527C0.0505479 7.24531 0 7.37181 0 7.50127Z" fill="#969696"/>
+									</svg>
+								</a>
+								<div class="main_filter__dropdown--content">
+									<div class="main_filter__price">
+										<div class="main_filter__price--input">
+											<input type="number" name="price_from" placeholder="от" class="price_from js-toggle-price" value="{{ params.4 }}">
+											<span>
+												₽
+											</span>
+										</div>
+										<div class="main_filter__price--input">
+											<input type="number" name="price_to" placeholder="до" class="price_to js-toggle-price" value="{{ params.5 }}">
+											<span>
+												₽
+											</span>
+										</div>
+									</div>
+								</div>
+							</div>
+							{% if filters %}
+							{% for i in filters.items %}
+							{% with m=forloop.counter %}
+							<div class="main_filter__dropdown">
+								<a href="javascript:void(0);">
+									<span>
+										{{ i.0 }}<span class="main_filter__amount{% if i.1|inside:params.6 > 0 %} main_filter__amount--active{% endif %}">{{ i.1|inside:params.6 }}</span>
+									</span>
+									<svg width="16" height="8" viewBox="0 0 16 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+										<path d="M0 7.50127C0 7.62779 0.0537072 7.75726 0.157962 7.85436C0.366472 8.04855 0.707671 8.04855 0.916181 7.85436L8.05292 1.2078L15.0854 7.75726C15.2939 7.95145 15.6351 7.95145 15.8436 7.75726C16.0521 7.56308 16.0521 7.24531 15.8436 7.05112L8.43203 0.145642C8.22352 -0.0485473 7.88232 -0.0485473 7.67381 0.145642L0.157962 7.14527C0.0505479 7.24531 0 7.37181 0 7.50127Z" fill="#969696"/>
+									</svg>
+								</a>
+								<div class="main_filter__dropdown--content{% if i.1|length > 5 %} main_filter__dropdown--content--scroll{% endif %}">
+									{% if i.1|length > 5 %}
+									<div class="main_filter__dropdown--bg"></div>
+									<div class="main_filter__dropdown--search">
+										<input type="text" class="inner--search" placeholder="Поиск">
+										<p class="inner--search__no">Ничего не найдено</p>
+									</div>
+									{% endif %}
+									<div class="main_filter__dropdown--wrapper">
+										{% for k in i.1 %}
+										<div class="main_filter__checkbox">
+											<input type="checkbox" name="params" value="{{ k.id }}" id="filter-{{ k.id }}" class="check__params js-toggle-check"{% if k.id in params.6 %} checked{% endif %}>
+											<label for="filter-{{ k.id }}">{{ k.parameter_title }}</label>
+										</div>
+										{% endfor %}
+									</div>
+								</div>
+							</div>
+							{% endwith %}
+							{% endfor %}
+							{% endif %}
+							<div class="main_filter__checkbox">
+								<input type="checkbox" name="instock" value="1" id="instock" class="check__instock js-toggle-check"{% if params.7 %} checked{% endif %}>
+								<label for="instock">В наличии</label>
+							</div>
 						</div>
 					</form>
 					<div class="filter--reset">
-						<a href="/products/{% if current_category %}{{ current_category.slug }}/{% endif %}">Сбросить фильтр</a>
+						<a href="/products/{{ current_category.slug }}/{% if current_subcategory %}{{ current_subcategory.slug }}/{% endif %}">Сбросить фильтр</a>
 					</div>
 				</div>
 				<div class="main-filter__content">

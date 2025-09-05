@@ -19,6 +19,7 @@ INSTALLED_APPS = [
     'products.templatetags.float',
     'products.templatetags.length',
     'products.templatetags.inside',
+    'products.templatetags.replace_ajax',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

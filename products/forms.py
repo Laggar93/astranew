@@ -4,7 +4,6 @@ import re
 
 class products_filter_form(forms.Form):
     search = forms.CharField(required=False)
-    subcategory = forms.RegexField(regex=r'^[0-9,]*$', required=False)
     brand = forms.RegexField(regex=r'^[0-9,]*$', required=False)
     country = forms.RegexField(regex=r'^[0-9,]*$', required=False)
     price_from = forms.IntegerField(required=False)
