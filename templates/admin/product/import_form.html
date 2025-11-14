@@ -1,0 +1,16 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<h2>Импорт товаров из Excel</h2>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <p><b>Выберите Excel файл (.xlsx):</b></p>
+    <input type="file" name="file" required>
+    <br><br>
+    <button type="submit" class="button default">Импортировать</button>
+</form>
+
+<br>
+<a href="..">← Назад</a>
+{% endblock %}

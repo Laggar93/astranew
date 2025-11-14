@@ -140,3 +140,6 @@ CKEDITOR_CONFIGS = {
 #SECURE_SSL_REDIRECT = config.secure_ssl_redirect
 #CSRF_COOKIE_SECURE = True
 #SECURE_HSTS_PRELOAD = True
+
+
+SFTP_BASE_PATH = 'https://astra-t.com/'

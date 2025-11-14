@@ -10,7 +10,7 @@ from django.core.validators import FileExtensionValidator
 
 class filters(models.Model):
 
-    filter_title = models.CharField('Наименование бренда', max_length=1000)
+    filter_title = models.CharField('Наименование бренда', max_length=1000, blank=True)
 
     def __str__(self):
         return self.filter_title
@@ -25,7 +25,7 @@ class filters_parameters(models.Model):
 
     filters = models.ForeignKey(filters, on_delete=models.CASCADE, related_name='filters_parameters')
 
-    parameter_title = models.CharField('Значение', max_length=1000)
+    parameter_title = models.CharField('Значение', max_length=1000, blank=True)
 
     def __str__(self):
         return self.filters.filter_title + ': ' + self.parameter_title
@@ -61,7 +61,7 @@ class catalog_page(models.Model):
 
 class brands(models.Model):
 
-    brand_title = models.CharField('Наименование бренда', max_length=1000)
+    brand_title = models.CharField('Наименование бренда', max_length=1000, blank=True)
 
     def __str__(self):
         return self.brand_title
@@ -74,7 +74,7 @@ class brands(models.Model):
 
 class countries(models.Model):
 
-    country_title = models.CharField('Наименование бренда', max_length=1000)
+    country_title = models.CharField('Наименование бренда', max_length=1000, blank=True)
 
     def __str__(self):
         return self.country_title
@@ -139,13 +139,13 @@ class subcategories(models.Model):
 
     order = models.IntegerField('Порядок')
 
-    title = models.CharField('Заголовок', max_length=1000)
+    title = models.CharField('Заголовок', max_length=1000, blank=True)
     description = models.CharField('Описание', max_length=1000, blank=True)
     keywords = models.CharField('Ключевые слова', max_length=1000, blank=True)
 
     categories = models.ForeignKey(categories, verbose_name='Выбрать категорию', on_delete=models.CASCADE, related_name='categories')
 
-    subcategory_title = models.CharField('Наименование подкатегории', max_length=1000)
+    subcategory_title = models.CharField('Наименование подкатегории', max_length=1000, blank=True)
 
     subcategory_description = RichTextField('Описание', blank=True)
     image = models.ImageField('Изображение', upload_to=get_file_path, help_text=image_help_text, blank=True)
@@ -153,8 +153,8 @@ class subcategories(models.Model):
     image_2x_jpg = models.ImageField(upload_to=get_file_path, blank=True)
     image_webp = models.ImageField(upload_to=get_file_path, blank=True)
     image_jpg = models.ImageField(upload_to=get_file_path, blank=True)
-    icon = models.FileField('Иконка', upload_to=get_file_path, help_text=svg_help_text)
-    manufacturers = models.ManyToManyField('manufacturers.manufacturers', verbose_name='Выбрать производителей', related_name='subcategories_manufacturers')
+    icon = models.FileField('Иконка', upload_to=get_file_path, help_text=svg_help_text, blank=True)
+    manufacturers = models.ManyToManyField('manufacturers.manufacturers', verbose_name='Выбрать производителей', related_name='subcategories_manufacturers', blank=True)
     slug = models.SlugField('URL', max_length=50, allow_unicode=True, unique=True, blank=True)
 
     __original_image = None
@@ -199,7 +199,7 @@ class product(models.Model):
 
     order = models.IntegerField('Порядок')
 
-    title = models.CharField('Заголовок', max_length=1000)
+    title = models.CharField('Заголовок', max_length=1000, blank=True)
     description = models.CharField('Описание', max_length=1000, blank=True)
     keywords = models.CharField('Ключевые слова', max_length=1000, blank=True)
 
@@ -209,7 +209,7 @@ class product(models.Model):
     leftovers = models.BooleanField('Складские остатки', default=True, blank=True)
     pop_models = models.BooleanField('Популярные модели', default=True, blank=True)
 
-    product_title = models.CharField('Наименование продукта', max_length=1000)
+    product_title = models.CharField('Наименование продукта', max_length=1000, blank=True)
     product_description = RichTextField('Описание', blank=True)
     product_price = models.FloatField('Стоимость продукта за 1 шт', default=1, blank=True, null=True)
 
@@ -226,8 +226,8 @@ class product(models.Model):
 
     instock = models.BooleanField('В наличии', default=True, blank=True)
     article = models.CharField('Артикул', max_length=1000)
-    brands = models.ForeignKey(brands, verbose_name='Бренд', on_delete=models.CASCADE, related_name='product_brands')
-    countries = models.ForeignKey(countries, verbose_name='Страна', on_delete=models.CASCADE, related_name='product_country')
+    brands = models.ForeignKey(brands, verbose_name='Бренд', on_delete=models.CASCADE, related_name='product_brands', blank=True)
+    countries = models.ForeignKey(countries, verbose_name='Страна', on_delete=models.CASCADE, related_name='product_country', blank=True)
 
     filters = models.ManyToManyField(filters_parameters, verbose_name='Значения фильтров', blank=True, related_name='products_filters')
 
@@ -271,8 +271,8 @@ class product_parameters(models.Model):
 
     product = models.ForeignKey(product, on_delete=models.CASCADE, related_name='product_parameters')
 
-    title = models.CharField('Параметр', max_length=1000)
-    subtitle = models.CharField('Значение', max_length=1000)
+    title = models.CharField('Параметр', max_length=1000, blank=True)
+    subtitle = models.CharField('Значение', max_length=1000, blank=True)
 
     def __str__(self):
         return self.title
@@ -289,8 +289,8 @@ class product_chars(models.Model):
 
     product = models.ForeignKey(product, on_delete=models.CASCADE, related_name='product_chars')
 
-    title = models.TextField('Характеристика')
-    subtitle = RichTextField('Значение')
+    title = models.TextField('Характеристика', blank=True)
+    subtitle = RichTextField('Значение', blank=True)
 
     def __str__(self):
         return self.title
@@ -361,10 +361,10 @@ class product_slider(models.Model):
 
     product = models.ForeignKey(product, on_delete=models.CASCADE, related_name='product_slider')
 
-    image = models.ImageField('Изображение', upload_to=get_file_path, help_text=image_help_text)
+    image = models.ImageField('Изображение', upload_to=get_file_path, help_text=image_help_text, blank=True)
     __original_image = None
 
-    alt = models.CharField('alt-тег', max_length=500)
+    alt = models.CharField('alt-тег', max_length=500, blank=True)
 
     def __init__(self, *args, **kwargs):
         super(product_slider, self).__init__(*args, **kwargs)
@@ -397,9 +397,9 @@ class product_file(models.Model):
     product = models.ForeignKey(product, on_delete=models.CASCADE, related_name='product_file')
 
     file = models.FileField('Документ', upload_to=get_file_path, help_text=pdf_help_text,
-                                 validators=[FileExtensionValidator(['pdf'])])
+                                 validators=[FileExtensionValidator(['pdf'])], blank=True)
 
-    name = models.CharField('Название', max_length=500)
+    name = models.CharField('Название', max_length=500, blank=True)
 
     def __str__(self):
         return str(self.id)

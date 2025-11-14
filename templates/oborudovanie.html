@@ -32,9 +32,11 @@
                             {% if i.subcategory_description %}
                                 <a href="{% url 'subcategory' i.categories.slug i.slug %}" class="equipment-item__link"></a>
                             {% endif %}
+                        {% if i.icon %}
                             <div class="equipment-item__icon">
-                                <img src="{{ i.icon.url }}" alt="{{ i.subcategory_title }} Иконка" width="81" height="81">
+                                <img src="{{ i.icon.url }}" alt="{{ i.subcategory_title }}" width="81" height="81">
                             </div>
+                        {% endif %}
                             <div class="equipment-item__name">
                                 {{ i.subcategory_title }}
                             </div>
