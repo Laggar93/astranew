@@ -13,6 +13,5 @@ passenger_wsgi.py
 .sock
 virtualenv.pyz
 wsgi.py
-media/*
 .python-version
 venv_astra/*
