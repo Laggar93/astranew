@@ -7,6 +7,129 @@ from django.core.exceptions import ValidationError
 from django.contrib import messages
 from openpyxl import load_workbook
 from django.conf import settings
+import openpyxl
+from openpyxl.styles import Font, Alignment
+from django.http import HttpResponse
+from django.utils import timezone
+
+
+class ProductExporter:
+    def export_products(self, queryset):
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Товары"
+
+        headers = [
+            'article', 'title', 'description', 'keywords', 'product_title',
+            'product_description', 'product_price', 'instock', 'seo',
+            'leftovers', 'pop_models', 'subcategories', 'image',
+            'brands', 'countries', 'filters'
+        ]
+
+        for col_num, header in enumerate(headers, 1):
+            cell = ws.cell(row=1, column=col_num, value=header)
+            cell.font = Font(bold=True)
+            cell.alignment = Alignment(horizontal='center')
+
+        row_num = 2
+        for product in queryset:
+            ws.cell(row=row_num, column=1, value=product.article)
+            ws.cell(row=row_num, column=2, value=product.title or '')
+            ws.cell(row=row_num, column=3, value=product.description or '')
+            ws.cell(row=row_num, column=4, value=product.keywords or '')
+            ws.cell(row=row_num, column=5, value=product.product_title or '')
+            ws.cell(row=row_num, column=6, value=product.product_description or '')
+            ws.cell(row=row_num, column=7, value=product.product_price or 0)
+            ws.cell(row=row_num, column=8, value=product.instock or '')
+            ws.cell(row=row_num, column=9, value=product.seo or '')
+            ws.cell(row=row_num, column=10, value=1 if product.leftovers else 0)
+            ws.cell(row=row_num, column=11, value=1 if product.pop_models else 0)
+
+            ws.cell(row=row_num, column=12, value=product.subcategories.subcategory_title if product.subcategories else '')
+            ws.cell(row=row_num, column=13, value=product.image.url if product.image else '')
+            ws.cell(row=row_num, column=14, value=product.brands.brand_title if product.brands else '')
+            ws.cell(row=row_num, column=15, value=product.countries.country_title if product.countries else '')
+
+            filters_list = []
+            for filter_param in product.filters.all():
+                filters_list.append(f"{filter_param.filters.filter_title}:{filter_param.parameter_title}")
+            ws.cell(row=row_num, column=16, value="; ".join(filters_list))
+
+            self.add_product_parameters(ws, product, row_num)
+
+            self.add_product_chars(ws, product, row_num)
+
+            self.add_product_slider(ws, product, row_num)
+
+            self.add_product_files(ws, product, row_num)
+
+            row_num += 1
+
+        for column in ws.columns:
+            max_length = 0
+            column_letter = column[0].column_letter
+            for cell in column:
+                try:
+                    if len(str(cell.value)) > max_length:
+                        max_length = len(str(cell.value))
+                except:
+                    pass
+            adjusted_width = (max_length + 2)
+            ws.column_dimensions[column_letter].width = adjusted_width
+
+        return wb
+
+    def add_product_parameters(self, ws, product, row_num):
+        parameters = product.product_parameters_set.all().order_by('order')
+        for i, param in enumerate(parameters, 1):
+            title_col = 17 + (i - 1) * 2
+            subtitle_col = title_col + 1
+
+            if row_num == 2:
+                ws.cell(row=1, column=title_col, value=f'product_parameter_title_{i}')
+                ws.cell(row=1, column=subtitle_col, value=f'product_parameter_subtitle_{i}')
+
+            ws.cell(row=row_num, column=title_col, value=param.title)
+            ws.cell(row=row_num, column=subtitle_col, value=param.subtitle)
+
+    def add_product_chars(self, ws, product, row_num):
+        chars = product.product_chars_set.all().order_by('order')
+        for i, char in enumerate(chars, 1):
+            title_col = 27 + (i - 1) * 2
+            subtitle_col = title_col + 1
+
+            if row_num == 2:
+                ws.cell(row=1, column=title_col, value=f'product_chars_title_{i}')
+                ws.cell(row=1, column=subtitle_col, value=f'product_chars_subtitle_{i}')
+
+            ws.cell(row=row_num, column=title_col, value=char.title)
+            ws.cell(row=row_num, column=subtitle_col, value=char.subtitle)
+
+    def add_product_slider(self, ws, product, row_num):
+        slides = product.product_slider_set.all().order_by('order')
+        for i, slide in enumerate(slides, 1):
+            image_col = 47 + (i - 1) * 2
+            alt_col = image_col + 1
+
+            if row_num == 2:
+                ws.cell(row=1, column=image_col, value=f'product_slider_image_{i}')
+                ws.cell(row=1, column=alt_col, value=f'product_slider_image_alt_{i}')
+
+            ws.cell(row=row_num, column=image_col, value=slide.image.url if slide.image else '')
+            ws.cell(row=row_num, column=alt_col, value=slide.alt or '')
+
+    def add_product_files(self, ws, product, row_num):
+        files = product.product_file_set.all().order_by('order')
+        for i, file_obj in enumerate(files, 1):
+            file_col = 67 + (i - 1) * 2
+            title_col = file_col + 1
+
+            if row_num == 2:
+                ws.cell(row=1, column=file_col, value=f'product_file_{i}')
+                ws.cell(row=1, column=title_col, value=f'product_file_title_{i}')
+
+            ws.cell(row=row_num, column=file_col, value=file_obj.file.url if file_obj.file else '')
+            ws.cell(row=row_num, column=title_col, value=file_obj.name or '')
 
 class ProductImporter:
     def __init__(self, request):
@@ -49,13 +172,16 @@ class ProductImporter:
 
         product, created = self.get_or_create_product(article, row_data)
 
+        original_image = product.image.name if product.image else None
+
         self.update_product_fields(product, row_data, row_num)
 
         self.process_related_data(product, row_data, row_num)
 
         product.save()
 
-        if product.image:
+        current_image = product.image.name if product.image else None
+        if product.image and current_image != original_image:
             self.create_resizes(product)
 
         if created:
@@ -68,17 +194,52 @@ class ProductImporter:
             from astra.functions import resize_img
 
             if product.image:
-                product.image_detail_png2x = resize_img(product.image_detail_png2x, product.image, [832, 614], 'jpeg')
-                product.image_detail_png = resize_img(product.image_detail_png, product.image, [416, 307], 'jpeg')
-                product.image_detail_webp = resize_img(product.image_detail_webp, product.image, [832, 614], 'webp')
-                product.image_other_png2x = resize_img(product.image_other_png2x, product.image, [608, 450], 'jpeg')
-                product.image_other_png = resize_img(product.image_other_png, product.image, [304, 225], 'jpeg')
-                product.image_other_webp = resize_img(product.image_other_webp, product.image, [608, 450], 'webp')
+                print(f"Создание ресайзов для продукта {product.article}")
+
+                product.image_detail_png2x = resize_img(
+                    product.image_detail_png2x if hasattr(product, 'image_detail_png2x') else None,
+                    product.image,
+                    [832, 614],
+                    'jpeg'
+                )
+                product.image_detail_png = resize_img(
+                    product.image_detail_png if hasattr(product, 'image_detail_png') else None,
+                    product.image,
+                    [416, 307],
+                    'jpeg'
+                )
+                product.image_detail_webp = resize_img(
+                    product.image_detail_webp if hasattr(product, 'image_detail_webp') else None,
+                    product.image,
+                    [832, 614],
+                    'webp'
+                )
+                product.image_other_png2x = resize_img(
+                    product.image_other_png2x if hasattr(product, 'image_other_png2x') else None,
+                    product.image,
+                    [608, 450],
+                    'jpeg'
+                )
+                product.image_other_png = resize_img(
+                    product.image_other_png if hasattr(product, 'image_other_png') else None,
+                    product.image,
+                    [304, 225],
+                    'jpeg'
+                )
+                product.image_other_webp = resize_img(
+                    product.image_other_webp if hasattr(product, 'image_other_webp') else None,
+                    product.image,
+                    [608, 450],
+                    'webp'
+                )
 
                 product.save()
+                print(f"Ресайзы созданы для продукта {product.article}")
 
         except Exception as e:
             print(f"Ошибка создания ресайзов: {e}")
+            import traceback
+            traceback.print_exc()
 
     def get_or_create_product(self, article, row_data):
         from .models import product
@@ -86,6 +247,7 @@ class ProductImporter:
         try:
             product_obj = product.objects.get(article=article)
             created = False
+            print(f"Найден существующий продукт: {article}")
         except product.DoesNotExist:
             last_product = product.objects.order_by('-id').first()
             new_id = last_product.id + 1 if last_product else 1
@@ -96,6 +258,7 @@ class ProductImporter:
                 order=new_id
             )
             created = True
+            print(f"Создан новый продукт: {article}")
 
         return product_obj, created
 
@@ -207,6 +370,8 @@ class ProductImporter:
             if not image_url:
                 return
 
+            print(f"Загрузка изображения для {product.article}: {image_url}")
+
             if image_url.startswith('sftp://'):
                 http_url = image_url.replace('sftp://', 'https://').replace('ftpuser@94.228.120.108', 'astra-t.com')
             elif image_url.startswith('http'):
@@ -223,9 +388,12 @@ class ProductImporter:
                 filename = os.path.basename(image_url)
 
             product.image.save(filename, ContentFile(response.content), save=False)
+            print(f"Изображение сохранено: {filename}")
 
         except Exception as e:
-            self.errors.append(f"Строка {row_num}: Ошибка загрузки изображения: {str(e)}")
+            error_msg = f"Строка {row_num}: Ошибка загрузки изображения: {str(e)}"
+            self.errors.append(error_msg)
+            print(error_msg)
 
     def process_related_data(self, product, row_data, row_num):
         self.handle_product_parameters(product, row_data, row_num)

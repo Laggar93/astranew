@@ -9,6 +9,7 @@ admin.site.unregister(auth.models.Group)
 from adminsortable2.admin import SortableAdminMixin, SortableInlineAdminMixin
 from import_export.admin import ImportExportModelAdmin
 from .resources import ProductImporter
+from .export_utils import export_products_to_excel
 from .models import catalog_page, categories, subcategories, product, product_parameters, product_chars, brands, countries, faq_catalogue_page, faq_categories, product_slider, product_file, filters, filters_parameters
 
 
@@ -86,20 +87,6 @@ class product_chars_admin(SortableInlineAdminMixin, admin.StackedInline):
     extra = 0
 
 
-# @admin.action(description="Импортировать товары из Excel")
-# def import_products_action(modeladmin, request, queryset):
-#     """Action в админке."""
-#     file = request.FILES.get("excel_file")
-#
-#     if not file:
-#         messages.error(request, "Вы не прикрепили Excel файл.")
-#         return
-#
-#     importer = ProductImporter(request)
-#     importer.import_file(file)
-#
-#     return redirect(request.path)
-
 class product_admin(SortableAdminMixin, admin.ModelAdmin):
     model = product
     inlines = [product_parameters_admin, product_chars_admin, product_slider_admin, product_file_admin]
@@ -112,31 +99,39 @@ class product_admin(SortableAdminMixin, admin.ModelAdmin):
     def image_tag(self, obj):
         if obj.image:
             return format_html('<img src="{}" width="50" />'.format(obj.image.url))
+
     image_tag.short_description = 'Изображение'
 
-    list_display = ['product_title', 'subcategories', 'image_tag', 'leftovers', 'pop_models',]
+    list_display = ['product_title', 'subcategories', 'image_tag', 'leftovers', 'pop_models', ]
 
     change_list_template = "admin/product/import_changelist.html"
 
+    actions = ['export_selected_products']
+
+    def export_selected_products(self, request, queryset):
+        return export_products_to_excel(queryset)
+    export_selected_products.short_description = "Экспортировать выбранные товары в Excel"
+
     def get_urls(self):
         urls = super().get_urls()
-        urls = [
-                   path("import/", self.import_view, name="product_import"),
-               ] + urls
-        return urls
+        custom_urls = [
+            path("import/", self.import_view, name="product_import"),
+            path("export/", self.export_view, name="product_export"),
+        ]
+        return custom_urls + urls
 
     def import_view(self, request):
-        """Страница импорта файла."""
         if request.method == "POST" and request.FILES.get("file"):
             file = request.FILES["file"]
-
             importer = ProductImporter(request)
             importer.import_file(file)
-
             return redirect("..")
-
         return render(request, "admin/product/import_form.html", {})
 
+    def export_view(self, request):
+        from .models import product
+        products = product.objects.all()
+        return export_products_to_excel(products)
 
 class subcategory_page_admin(admin.ModelAdmin):
     save_on_top = True
