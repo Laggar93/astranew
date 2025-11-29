@@ -196,7 +196,7 @@ class ProductImporter:
             if product.image:
                 print(f"Создание ресайзов для продукта {product.article}")
 
-                product.image = resize_img(product.image, product.image, [1280, 960], 'jpeg')
+                product.image = resize_img(product.image, product.image, 1280, 'jpeg')
 
                 product.image_detail_png2x = resize_img(
                     product.image_detail_png2x if hasattr(product, 'image_detail_png2x') else None,

@@ -3,7 +3,25 @@ from openpyxl.styles import Font, Alignment
 from django.http import HttpResponse
 from django.utils import timezone
 import pytz
-from django.utils import timezone
+from django.utils.html import strip_tags
+import re
+
+
+def clean_html(text):
+    """Очищает текст от HTML тегов и лишних пробелов"""
+    if not text:
+        return ''
+
+    # Удаляем HTML теги
+    clean_text = strip_tags(text)
+
+    # Заменяем множественные пробелы и переносы на один пробел
+    clean_text = re.sub(r'\s+', ' ', clean_text)
+
+    # Убираем пробелы в начале и конце
+    clean_text = clean_text.strip()
+
+    return clean_text
 
 
 def export_products_to_excel(queryset):
@@ -66,7 +84,10 @@ def export_products_to_excel(queryset):
         row_data['leftovers'] = 'TRUE' if product_obj.leftovers else 'FALSE'
         row_data['pop_models'] = 'TRUE' if product_obj.pop_models else 'FALSE'
         row_data['product_title'] = product_obj.product_title or ''
-        row_data['product_description'] = product_obj.product_description or ''
+
+        # Очищаем HTML теги из product_description
+        row_data['product_description'] = clean_html(product_obj.product_description) if product_obj.product_description else ''
+
         row_data['product_price'] = product_obj.product_price or ''
         row_data['image'] = product_obj.image.url if product_obj.image else ''
         row_data['instock'] = 'TRUE' if product_obj.instock else 'FALSE'
@@ -79,7 +100,8 @@ def export_products_to_excel(queryset):
             filters_list.append(f"{filter_param.filters.filter_title}:{filter_param.parameter_title}")
         row_data['filters'] = "; ".join(filters_list)
 
-        row_data['seo'] = product_obj.seo or ''
+        # Очищаем HTML теги из seo
+        row_data['seo'] = clean_html(product_obj.seo) if product_obj.seo else ''
 
         parameters = product_obj.product_parameters.all().order_by('order')
         for i, param in enumerate(parameters, 1):
@@ -89,7 +111,8 @@ def export_products_to_excel(queryset):
         chars = product_obj.product_chars.all().order_by('order')
         for i, char in enumerate(chars, 1):
             row_data[f'product_chars_title_{i}'] = char.title or ''
-            row_data[f'product_chars_subtitle_{i}'] = char.subtitle or ''
+            # Очищаем HTML теги из характеристик
+            row_data[f'product_chars_subtitle_{i}'] = clean_html(char.subtitle) if char.subtitle else ''
 
         slides = product_obj.product_slider.all().order_by('order')
         for i, slide in enumerate(slides, 1):
